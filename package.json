@@ -1,0 +1,34 @@
+{
+  "name": "arcwell",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "dev": "npm --prefix frontend run dev -- --host 127.0.0.1 --port 5180 --strictPort",
+    "build": "npm --prefix frontend run typecheck && npm --prefix frontend run build",
+    "preview": "npm --prefix frontend run preview -- --host 127.0.0.1 --port 5180 --strictPort",
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check src tests docs README.md package.json && npm --prefix frontend run format:integration:check",
+    "verify": "npm run format:check && npm test && npm run build",
+    "dev:starter": "vite --host 127.0.0.1 --port 5180 --strictPort",
+    "build:starter": "tsc --noEmit && vite build",
+    "setup": "npm ci && npm --prefix frontend ci",
+    "identity:setup": "node scripts/setup-identity.mjs",
+    "identity:check": "node scripts/identity-guard.mjs --history"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.23",
+    "@types/react-dom": "18.3.7",
+    "prettier": "3.9.5",
+    "typescript": "6.0.3",
+    "vite": "8.1.4"
+  }
+}
