@@ -1,0 +1,309 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * ARCWELL design system — dark-only, editorial/technical.
+ * All colors, fonts, animations live here as semantic tokens.
+ */
+
+@theme {
+  --color-border: hsl(240 4% 12%);
+  --color-input: hsl(240 4% 12%);
+  --color-ring: hsl(60 3% 92%);
+  --color-background: hsl(240 6% 4%);
+  --color-foreground: hsl(60 3% 92%);
+  --color-primary: hsl(60 3% 92%);
+  --color-primary-foreground: hsl(240 6% 4%);
+  --color-secondary: hsl(240 4% 10%);
+  --color-secondary-foreground: hsl(60 3% 92%);
+  --color-muted: hsl(240 4% 10%);
+  --color-muted-foreground: hsl(240 3% 60%);
+  --color-destructive: hsl(0 62.8% 30.6%);
+  --color-destructive-foreground: hsl(0 0% 98%);
+  --color-popover: hsl(240 5% 7%);
+  --color-popover-foreground: hsl(60 3% 92%);
+  --color-card: hsl(240 5% 7%);
+  --color-card-foreground: hsl(60 3% 92%);
+  --color-sidebar: hsl(240 6% 4%);
+  --color-sidebar-foreground: hsl(60 3% 92%);
+  --color-sidebar-primary: hsl(60 3% 92%);
+  --color-sidebar-primary-foreground: hsl(240 6% 4%);
+  --color-sidebar-accent: hsl(240 4% 10%);
+  --color-sidebar-accent-foreground: hsl(60 3% 92%);
+  --color-sidebar-border: hsl(240 4% 12%);
+  --color-sidebar-ring: hsl(60 3% 92%);
+
+  /* ARCWELL brand tokens */
+  --color-bg: #0a0a0b;
+  --color-surface: #111114;
+  --color-surface-2: #16161a;
+  --color-ink: #ededea;
+  --color-ink-muted: #8b8b93;
+  --color-faint: #55555c;
+  --color-hairline: rgba(255, 255, 255, 0.08);
+  --color-hairline-strong: rgba(255, 255, 255, 0.14);
+  --color-accent: #e8e8e4;
+  --color-accent-foreground: #0a0a0b;
+  --color-amber: #9a9aa2;
+
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --container-container: 1680px;
+
+  --radius: 0.625rem;
+  --radius-xs: calc(var(--radius) - 6px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-card: 0 24px 60px -24px rgb(0 0 0 / 0.6);
+
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-pulse-ring: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-bob: bob 1.6s ease-in-out infinite;
+  --animate-float: float 4s ease-in-out infinite;
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-caret-blink: caret-blink 1.25s ease-out infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes pulse-ring {
+    0% {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+    80%,
+    100% {
+      transform: scale(2.4);
+      opacity: 0;
+    }
+  }
+  @keyframes bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(6px);
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(-6px);
+    }
+    50% {
+      transform: translateY(6px);
+    }
+  }
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+  @keyframes caret-blink {
+    0%,
+    70%,
+    100% {
+      opacity: 1;
+    }
+    20%,
+    50% {
+      opacity: 0;
+    }
+  }
+}
+
+:root {
+  --bg: #0a0a0b;
+  --surface: #111114;
+  --surface-2: #16161a;
+  --ink: #ededea;
+  --ink-muted: #8b8b93;
+  --faint: #55555c;
+  --hairline: rgba(255, 255, 255, 0.08);
+  --hairline-strong: rgba(255, 255, 255, 0.14);
+  --lime: #e8e8e4;
+  --amber: #9a9aa2;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: auto; /* Lenis owns smoothing */
+  }
+
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "ss01", "cv11";
+    overflow-x: clip;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  ::selection {
+    background: var(--lime);
+    color: var(--bg);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #26262b;
+    border-radius: 8px;
+    border: 2px solid var(--bg);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #34343b;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--lime);
+    outline-offset: 3px;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    body.custom-cursor,
+    body.custom-cursor a,
+    body.custom-cursor button {
+      cursor: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-marquee,
+    .animate-bob,
+    .animate-float,
+    .animate-pulse-ring {
+      animation: none !important;
+    }
+  }
+}
+
+/* Momentum scrolling for horizontal rails on touch devices */
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.touch-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Safe-area helpers for notched devices */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.container-infini {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 1680px;
+  padding-inline: 1.5rem;
+}
+@media (width >= 48rem) {
+  .container-infini {
+    padding-inline: 3rem;
+  }
+}
+@media (width >= 80rem) {
+  .container-infini {
+    padding-inline: 5rem;
+  }
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-ink-muted);
+}
+
+.hairline-t {
+  border-top: 1px solid var(--hairline);
+}
+
+.hairline-b {
+  border-bottom: 1px solid var(--hairline);
+}
+
+.text-outline {
+  -webkit-text-stroke: 1px var(--ink);
+  color: transparent;
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ */
+/* Mobile comfort layer                                               */
+/* 12-col grids keep their desktop gutters but 11 × 2.5rem of column  */
+/* gap alone exceeds a phone viewport, so tighten column gaps below   */
+/* md where every cell is full-width anyway.                          */
+/* ------------------------------------------------------------------ */
+@media (width < 48rem) {
+  .grid-cols-12 {
+    column-gap: 1rem;
+  }
+
+  .container-infini {
+    padding-inline: 1.25rem;
+  }
+
+  /* long mono hashes / ids must never push the layout wide */
+  .font-mono {
+    overflow-wrap: anywhere;
+  }
+
+  /* comfortable reading measure + tap targets */
+  a,
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
