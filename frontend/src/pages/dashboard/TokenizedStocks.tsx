@@ -18,7 +18,7 @@ import { STOCK_CATALOG_METADATA } from "../../../../src/stock-catalog";
 import type { StockAsset } from "../../../../src/stock-catalog-source";
 import "@/components/asset-logo.css";
 import "./tokenized-stocks.css";
-import ArcStockFunding from "./ArcStockFunding";
+import StockTransferRecovery from "./StockTransferRecovery";
 
 type Pending = { ticket: string; orderId: string; wallet: string; deadline: number };
 const STORAGE = "arcwell.stock-order.v1";
@@ -497,21 +497,21 @@ export default function TokenizedStocks() {
           </aside>
         </div>
         <div className="st-trade-column">
-          <ArcStockFunding
-            disabled={Boolean(busy || pending || approvalHash)}
-            onLockChange={setFundingLocked}
-            onFunded={() => {
-              invalidate();
-              setAddress("");
-              setNote("Arc funding confirmed. Connect your wallet for the stock order.");
-            }}
-          />
           <div className="st-ticket">
             <div className="st-ticket-head">
               <span>PLACE A TRADE</span>
               <span className="st-network-dot">Ethereum</span>
             </div>
             <h3 className="st-ticket-title">Make your move.</h3>
+            <StockTransferRecovery
+              disabled={Boolean(busy || pending || approvalHash)}
+              onLockChange={setFundingLocked}
+              onResolved={() => {
+                invalidate();
+                setAddress("");
+                setNote("Existing transfer confirmed. Reconnect your wallet for the stock order.");
+              }}
+            />
             <p className="st-ticket-subtitle">USDC ⇄ {symbol}</p>
             <label htmlFor="stock-asset">Asset</label>
             <select
@@ -575,7 +575,7 @@ export default function TokenizedStocks() {
             <p className="st-caption">
               {balance !== null
                 ? `${balance} ${inputSymbol} available for Ethereum settlement`
-                : "Use the Arc funding panel above, or USDC already on Ethereum."}
+                : "Stock orders currently use USDC on Ethereum."}
             </p>
             <div className="st-receive">
               <span>You receive</span>
