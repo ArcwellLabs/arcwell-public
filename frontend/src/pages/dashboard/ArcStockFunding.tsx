@@ -90,15 +90,20 @@ export default function ArcStockFunding({ disabled, onLockChange, onFunded }: Pr
     }
   }
   async function sdk(wallet: StockWallet) {
-    const [{ BridgeKit }, { createViemAdapterFromProvider }] = await Promise.all([
-      import("@circle-fin/bridge-kit"),
-      import("@circle-fin/adapter-viem-v2"),
-    ]);
-    return {
-      kit: new BridgeKit(),
-      adapter: await createViemAdapterFromProvider({ provider: wallet as EIP1193Provider }),
-    };
+    if (import.meta.env.SSR) {
+      throw new Error("Arc funding requires a browser wallet.");
+    } else {
+      const [{ BridgeKit }, { createViemAdapterFromProvider }] = await Promise.all([
+        import("@circle-fin/bridge-kit"),
+        import("@circle-fin/adapter-viem-v2"),
+      ]);
+      return {
+        kit: new BridgeKit(),
+        adapter: await createViemAdapterFromProvider({ provider: wallet as EIP1193Provider }),
+      };
+    }
   }
+
   const params = (
     adapter: Awaited<ReturnType<typeof sdk>>["adapter"],
     address: string,
