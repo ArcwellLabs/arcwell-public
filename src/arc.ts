@@ -1,9 +1,26 @@
 // Source: https://docs.arc.io/integrate/connect-to-arc (2026-09-07).
+export type ArcNetwork = Readonly<{
+  name: string;
+  chainId: number;
+  rpcUrl: string;
+  explorerUrl: string;
+  nativeDecimals: number;
+}>;
+
+// Mainnet connection details verified against Arc's official setup guide, 2026-09-16.
+export const ARC_MAINNET: ArcNetwork = Object.freeze({
+  name: 'Arc Mainnet',
+  chainId: 5042,
+  rpcUrl: 'https://rpc.mainnet.arc.io',
+  explorerUrl: 'https://explorer.arc.io',
+  nativeDecimals: 18,
+});
+
 export const ARC = Object.freeze({
   name: 'Arc Testnet',
   chainId: 5042002,
   rpcUrl: 'https://rpc.testnet.arc.io',
-  explorerUrl: 'https://testnet.arcscan.app',
+  explorerUrl: 'https://explorer.testnet.arc.io',
   faucetUrl: 'https://faucet.circle.com',
   nativeDecimals: 18,
   usdcDecimals: 6,
@@ -110,8 +127,13 @@ export function preparePayment(recipient: string, amount: string, reference: str
 }
 
 type Fetcher = typeof fetch;
-async function rpc(method: string, params: unknown[], fetcher: Fetcher): Promise<unknown> {
-  const response = await fetcher(ARC.rpcUrl, {
+async function rpc(
+  method: string,
+  params: unknown[],
+  fetcher: Fetcher,
+  network: ArcNetwork = ARC,
+): Promise<unknown> {
+  const response = await fetcher(network.rpcUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
@@ -130,14 +152,14 @@ function hex(value: unknown): bigint {
   return BigInt(value);
 }
 
-async function assertChain(fetcher: Fetcher) {
-  if (hex(await rpc('eth_chainId', [], fetcher)) !== BigInt(ARC.chainId))
+async function assertChain(fetcher: Fetcher, network: ArcNetwork = ARC) {
+  if (hex(await rpc('eth_chainId', [], fetcher, network)) !== BigInt(network.chainId))
     throw new Error('Wrong chain returned by RPC. Read stopped.');
 }
 
-export async function readNetwork(fetcher: Fetcher = fetch) {
-  await assertChain(fetcher);
-  const block = hex(await rpc('eth_blockNumber', [], fetcher));
+export async function readNetwork(fetcher: Fetcher = fetch, network: ArcNetwork = ARC) {
+  await assertChain(fetcher, network);
+  const block = hex(await rpc('eth_blockNumber', [], fetcher, network));
   return { block: block.toString(), observedAt: new Date().toISOString() };
 }
 
@@ -195,11 +217,17 @@ function validHash(value: unknown): value is string {
 export async function readReceipt(
   hash: string,
   fetcher: Fetcher = fetch,
+  network: ArcNetwork = ARC,
 ): Promise<ReceiptObservation> {
   if (!validHash(hash))
     throw new Error('Enter a transaction hash (0x plus 64 hexadecimal characters).');
-  await assertChain(fetcher);
-  const receipt = (await rpc('eth_getTransactionReceipt', [hash], fetcher)) as Receipt | null;
+  await assertChain(fetcher, network);
+  const receipt = (await rpc(
+    'eth_getTransactionReceipt',
+    [hash],
+    fetcher,
+    network,
+  )) as Receipt | null;
   const observedAt = new Date().toISOString();
   if (receipt === null) return { hash, observedAt, state: 'not-found', finality: 'unverified' };
   if (
@@ -213,9 +241,14 @@ export async function readReceipt(
   const blockNumber = hex(receipt.blockNumber);
   const gasFeeUsdc = formatUnits(
     hex(receipt.gasUsed) * hex(receipt.effectiveGasPrice),
-    ARC.nativeDecimals,
+    network.nativeDecimals,
   );
-  const block = (await rpc('eth_getBlockByNumber', [receipt.blockNumber, false], fetcher)) as {
+  const block = (await rpc(
+    'eth_getBlockByNumber',
+    [receipt.blockNumber, false],
+    fetcher,
+    network,
+  )) as {
     hash: string;
     number: string;
   } | null;
@@ -228,7 +261,12 @@ export async function readReceipt(
     throw new Error('Receipt block could not be reconciled. Read stopped.');
   let finality: ReceiptObservation['finality'] = 'unverified';
   try {
-    const finalized = (await rpc('eth_getBlockByNumber', ['finalized', false], fetcher)) as {
+    const finalized = (await rpc(
+      'eth_getBlockByNumber',
+      ['finalized', false],
+      fetcher,
+      network,
+    )) as {
       number: string;
       hash: string;
     } | null;
@@ -251,5 +289,65 @@ export async function readReceipt(
     finality,
     block: blockNumber.toString(),
     gasFeeUsdc,
+  };
+}
+
+export async function readNativeUsdcBalance(
+  address: string,
+  fetcher: Fetcher = fetch,
+  network: ArcNetwork = ARC_MAINNET,
+) {
+  if (!validAddress(address)) throw new Error('Enter a valid non-zero public address.');
+  await assertChain(fetcher, network);
+  const block = await rpc('eth_blockNumber', [], fetcher, network);
+  const blockNumber = hex(block);
+  const balance = hex(await rpc('eth_getBalance', [address, block], fetcher, network));
+  return {
+    address,
+    chainId: network.chainId,
+    amount: formatUnits(balance, network.nativeDecimals),
+    block: blockNumber.toString(),
+    observedAt: new Date().toISOString(),
+  };
+}
+
+/** Read-only estimate for a native USDC transfer; never signs or broadcasts. */
+export async function estimateNativeUsdcTransfer(
+  from: string,
+  to: string,
+  amount: string,
+  fetcher: Fetcher = fetch,
+  network: ArcNetwork = ARC_MAINNET,
+) {
+  if (!validAddress(from) || !validAddress(to))
+    throw new Error('Enter valid non-zero sender and recipient addresses.');
+  const value = parseUnits(amount, network.nativeDecimals);
+  if (value <= 0n) throw new Error('Amount must be greater than zero.');
+  await assertChain(fetcher, network);
+  const block = await rpc('eth_blockNumber', [], fetcher, network);
+  const blockNumber = hex(block);
+  const [gasResult, priceResult, balanceResult] = await Promise.all([
+    rpc('eth_estimateGas', [{ from, to, value: `0x${value.toString(16)}` }], fetcher, network),
+    rpc('eth_gasPrice', [], fetcher, network),
+    rpc('eth_getBalance', [from, block], fetcher, network),
+  ]);
+  const gas = hex(gasResult),
+    price = hex(priceResult),
+    balance = hex(balanceResult);
+  if (gas <= 0n || price <= 0n) throw new Error('RPC returned an invalid fee estimate.');
+  const fee = gas * price;
+  return {
+    from,
+    to,
+    amount: formatUnits(value, network.nativeDecimals),
+    chainId: network.chainId,
+    gasUnits: gas.toString(),
+    gasPriceBaseUnits: price.toString(),
+    feeUsdc: formatUnits(fee, network.nativeDecimals),
+    totalUsdc: formatUnits(value + fee, network.nativeDecimals),
+    hasEstimatedFunds: balance >= value + fee,
+    block: blockNumber.toString(),
+    observedAt: new Date().toISOString(),
+    broadcast: false as const,
   };
 }

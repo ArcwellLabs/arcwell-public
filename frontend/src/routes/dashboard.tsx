@@ -22,13 +22,13 @@ export const Route = createFileRoute("/dashboard")({
       {
         name: "description",
         content:
-          "Explore markets, practice paper trading and track your sample portfolio in the ARCWELL beta.",
+          "Explore markets, practice paper trading, and inspect Arc wallet balances and transaction receipts.",
       },
       { property: "og:title", content: "ARCWELL — Investing & Research" },
       {
         property: "og:description",
         content:
-          "Markets, portfolio charts, paper orders and activity. Synthetic data; no real execution.",
+          "Markets, paper portfolios and live Arc network reads. Real stock execution is not yet connected.",
       },
     ],
   }),

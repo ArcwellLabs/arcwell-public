@@ -10,7 +10,7 @@ export const DASHBOARD_RELEASE = {
 
 export type DashboardRelease = Record<keyof typeof DASHBOARD_RELEASE, boolean>;
 
-const CORE_VIEWS = ["portfolio", "markets", "trading", "ledger", "settings"];
+const CORE_VIEWS = ["portfolio", "markets", "trading", "ledger", "arc", "settings"];
 const DEFERRED_VIEWS: Record<string, keyof DashboardRelease> = {
   risk: "risk",
   quant: "quant",
@@ -53,6 +53,7 @@ export function dashboardViewNumber(view: string) {
     "quant",
     "funding",
     "ledger",
+    "arc",
     "settings",
     ...Object.keys(DEFERRED_VIEWS).filter((id) => !["risk", "quant", "funding"].includes(id)),
   ].filter((id) => isDashboardViewEnabled(id));

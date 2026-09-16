@@ -26,7 +26,13 @@ function useTorontoTime() {
  * wordmark / live Toronto clock / Work link + Menu pill.
  * Layout owns the matching pt-[72px] content offset.
  */
-export default function Navbar({ dashboard = false }: { dashboard?: boolean }) {
+export default function Navbar({
+  dashboard = false,
+  arcWorkspace = false,
+}: {
+  dashboard?: boolean;
+  arcWorkspace?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const time = useTorontoTime();
@@ -63,7 +69,8 @@ export default function Navbar({ dashboard = false }: { dashboard?: boolean }) {
           </Link>
 
           <div className="hidden font-mono text-xs uppercase tracking-[0.18em] text-white/60 lg:block">
-            {dashboard ? "Paper investing beta" : "ARC Network"} · {time} EST
+            {arcWorkspace ? "Arc workspace" : dashboard ? "Paper investing beta" : "ARC Network"} ·{" "}
+            {time} EST
           </div>
 
           <nav className="flex items-center gap-7" aria-label="Primary">

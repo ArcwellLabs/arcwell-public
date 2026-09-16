@@ -20,6 +20,7 @@ export default function Layout() {
   const dashboard = location.pathname === "/dashboard";
   const assetResearch =
     dashboard && new URLSearchParams(location.searchStr).get("view") === "markets";
+  const arcWorkspace = dashboard && new URLSearchParams(location.searchStr).get("view") === "arc";
   const [animKey, setAnimKey] = useState(location.pathname);
   const [isPending, startAnim] = useTransition();
 
@@ -32,17 +33,14 @@ export default function Layout() {
       <Preloader />
       <SmoothScroll />
       <Cursor />
-      <Navbar dashboard={dashboard} />
+      <Navbar dashboard={dashboard} arcWorkspace={arcWorkspace} />
       <main className="pt-[72px]">
         <motion.div
           key={animKey}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-          style={{
-            willChange: "opacity, transform",
-            opacity: isPending ? 0.985 : undefined,
-          }}
+          style={{ willChange: "opacity, transform", opacity: isPending ? 0.985 : undefined }}
         >
           <Outlet />
         </motion.div>
@@ -51,9 +49,11 @@ export default function Layout() {
         <footer className="border-t border-hairline px-6 py-7 text-xs text-ink-muted md:px-10">
           <div className="mx-auto flex max-w-[1680px] flex-wrap items-center justify-between gap-4">
             <span>
-              {assetResearch
-                ? "ARCWELL / Arc asset research · Sourced data"
-                : "ARCWELL / Paper investing beta · Synthetic data"}
+              {arcWorkspace
+                ? "ARCWELL / Arc wallet & network reads"
+                : assetResearch
+                  ? "ARCWELL / Arc asset research · Sourced data"
+                  : "ARCWELL / Paper investing beta · Synthetic data"}
             </span>
             <Link
               to="/dashboard"
