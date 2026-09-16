@@ -1,0 +1,15 @@
+.git
+**/node_modules
+**/.output
+**/dist
+**/.wrangler
+**/.tanstack
+**/.vinxi
+**/.env
+**/.env.*
+**/*.local
+artifacts
+docs
+.codex
+.agents
+.DS_Store
