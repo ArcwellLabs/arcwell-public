@@ -49,6 +49,7 @@ type Props = {
   view: string;
   initialAddress?: string;
   initialQuery?: string;
+  initialScope?: "ecosystem";
   onNavigate: (view: string) => void;
   symbol: string;
   setSymbol: (symbol: string) => void;
@@ -96,9 +97,10 @@ export default function InvestingWorkspace(props: Props) {
         />
       ) : view === "markets" ? (
         <AssetResearch
-          key={`${props.initialAddress || ""}:${props.initialQuery || ""}`}
+          key={`${props.initialAddress || ""}:${props.initialQuery || ""}:${props.initialScope || ""}`}
           initialAddress={props.initialAddress}
           initialQuery={props.initialQuery}
+          initialScope={props.initialScope}
         />
       ) : view === "stocks" ? (
         <TokenizedStocks

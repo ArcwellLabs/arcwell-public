@@ -327,3 +327,30 @@ test('provider rate limits honor bounded retry time and do not expose upstream r
   await service.search('mainnet', 'third');
   assert.ok(requests > count);
 });
+
+test('explorer cursor exposes further search pages and keeps network and query pinned', async () => {
+  const seen: string[] = [];
+  const service = createAssetService(async (input) => {
+    const url = new URL(String(input));
+    seen.push(url.href);
+    assert.equal(url.origin, 'https://explorer.testnet.arc.io');
+    assert.equal(url.searchParams.get('q'), 'Asset');
+    return answer(
+      url.searchParams.has('items_count')
+        ? {
+            items: [{ type: 'token', address_hash: B, name: 'Asset Later', symbol: 'LATER' }],
+            next_page_params: null,
+          }
+        : {
+            items: [{ type: 'token', address_hash: A, name: 'Asset First', symbol: 'FIRST' }],
+            next_page_params: { q: 'injected', items_count: 50 },
+          },
+    );
+  });
+  const first = await service.search('testnet', 'Asset');
+  assert.equal(first.nextPage, 2);
+  const second = await service.search('testnet', 'Asset', 2);
+  assert.equal(second.items[0].address, B);
+  assert.equal(second.nextPage, null);
+  assert.equal(seen.length, 2);
+});

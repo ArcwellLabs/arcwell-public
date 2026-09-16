@@ -6,7 +6,8 @@ import Dashboard from "@/pages/Dashboard";
 export const Route = createFileRoute("/dashboard")({
   validateSearch: (
     search: Record<string, unknown>,
-  ): { view?: string; asset?: string; q?: string } => ({
+  ): { view?: string; asset?: string; q?: string; scope?: "ecosystem" } => ({
+    scope: search["scope"] === "ecosystem" ? "ecosystem" : undefined,
     q: typeof search["q"] === "string" ? search["q"].trim().slice(0, 100) : undefined,
     asset:
       typeof search["asset"] === "string" && isAssetAddress(search["asset"])

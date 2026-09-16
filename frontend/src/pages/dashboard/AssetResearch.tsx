@@ -1,3 +1,4 @@
+import ArcEcosystem from "./ArcEcosystem";
 import AssetLogo from "@/components/AssetLogo";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -84,7 +85,7 @@ function Sources({ sources }: { sources: SourceStatus[] }) {
     </ul>
   );
 }
-export default function AssetResearch({
+function TokenResearch({
   initialAddress,
   initialQuery,
 }: {
@@ -862,5 +863,30 @@ function ContractDetails({ detail }: { detail: AssetDetail }) {
         )}
       </div>
     </details>
+  );
+}
+
+export default function AssetResearch(props: {
+  initialAddress?: string;
+  initialQuery?: string;
+  initialScope?: "ecosystem";
+}) {
+  const [scope, setScope] = useState(props.initialScope || "tokens");
+  return (
+    <>
+      <div className="aw-research-scope" role="group" aria-label="Arc discovery type">
+        <button aria-pressed={scope === "tokens"} onClick={() => setScope("tokens")}>
+          Tokens & markets
+        </button>
+        <button aria-pressed={scope === "ecosystem"} onClick={() => setScope("ecosystem")}>
+          Projects & launches
+        </button>
+      </div>
+      {scope === "ecosystem" ? (
+        <ArcEcosystem initialQuery={props.initialQuery} />
+      ) : (
+        <TokenResearch initialAddress={props.initialAddress} initialQuery={props.initialQuery} />
+      )}
+    </>
   );
 }

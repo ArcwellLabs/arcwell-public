@@ -1,7 +1,9 @@
+import { createEcosystemService } from './arc-ecosystem.ts';
 import { createAssetService, isAssetAddress, type AssetNetwork } from './asset-data.ts';
 
 // Bounded per-process cache and admission control. No wallet or user identity is collected.
 export function createAssetHandler(service = createAssetService(), now = Date.now) {
+  const ecosystem = createEcosystemService();
   const cache = new Map<string, { expires: number; value: unknown }>();
   const pending = new Map<string, Promise<unknown>>();
   let windowStart = now();
@@ -18,6 +20,12 @@ export function createAssetHandler(service = createAssetService(), now = Date.no
   return async (request: Request): Promise<Response> => {
     if (request.method !== 'GET') return response({ error: 'Use GET for asset research.' }, 405);
     const url = new URL(request.url);
+    if (url.searchParams.get('kind') === 'ecosystem') {
+      const query = (url.searchParams.get('q') || '').trim();
+      if (query.length > 100 || /[\u0000-\u001f]/.test(query))
+        return response({ error: 'Invalid ecosystem search.' }, 400);
+      return response(await ecosystem(query));
+    }
     const network = url.searchParams.get('network') || 'mainnet';
     const address = url.searchParams.get('address');
     const q = (url.searchParams.get('q') || '').trim();

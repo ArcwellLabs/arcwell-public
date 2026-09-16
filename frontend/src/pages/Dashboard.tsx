@@ -69,6 +69,7 @@ export default function Dashboard() {
           view={view}
           initialAddress={search.asset}
           initialQuery={search.q}
+          initialScope={search.scope}
           onNavigate={setView}
           symbol={symbol}
           setSymbol={setSymbol}

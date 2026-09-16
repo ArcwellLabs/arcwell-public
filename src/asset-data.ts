@@ -346,6 +346,36 @@ export function createAssetService(fetcher: Fetcher = fetch, now = Date.now) {
       supply,
     };
   }
+  const explorerPages = new Map<string, { expires: number; value: ObjectValue }>();
+  async function explorerSearch(explorer: string, q: string, page: number) {
+    let params = new URLSearchParams({ q });
+    let value: ObjectValue = {};
+    for (let current = 1; current <= page; current++) {
+      const url = `${explorer}/api/v2/search?${params}`;
+      const cached = explorerPages.get(url);
+      value = cached && cached.expires > now() ? cached.value : obj(await json(url));
+      if (!cached || cached.expires <= now()) {
+        if (explorerPages.size >= 100) explorerPages.delete(explorerPages.keys().next().value!);
+        explorerPages.set(url, { expires: now() + 60_000, value });
+      }
+      if (current < page) {
+        const cursor = obj(value['next_page_params']);
+        if (!Object.keys(cursor).length) return { items: [] };
+        params = new URLSearchParams({ q });
+        for (const [key, val] of Object.entries(cursor)) {
+          if (
+            key !== 'q' &&
+            /^[a-z_]+$/.test(key) &&
+            ['string', 'number', 'boolean'].includes(typeof val) &&
+            String(val).length <= 200
+          )
+            params.set(key, String(val));
+        }
+        if (params.size === 1) throw new Error('Invalid explorer cursor');
+      }
+    }
+    return value;
+  }
   async function search(network: AssetNetwork, query: string, page = 1): Promise<AssetSearch> {
     const q = query.trim();
     if (
@@ -394,11 +424,7 @@ export function createAssetService(fetcher: Fetcher = fetch, now = Date.now) {
     }
     const explorer = ASSET_NETWORKS[network].explorer;
     const [bs, gt, dex] = await Promise.all([
-      page === 1
-        ? source('Arc explorer', explorer, sources, () =>
-            json(`${explorer}/api/v2/search?q=${encodeURIComponent(q)}`),
-          )
-        : null,
+      source('Arc explorer', explorer, sources, () => explorerSearch(explorer, q, page)),
       network === 'mainnet'
         ? source('GeckoTerminal', 'https://www.geckoterminal.com/arc/pools', sources, () =>
             json(
@@ -453,7 +479,11 @@ export function createAssetService(fetcher: Fetcher = fetch, now = Date.now) {
       items: hits.slice(0, 100),
       sources,
       nextPage:
-        network === 'mainnet' && list(obj(gt)['data']).length >= 20 && page < 10 ? page + 1 : null,
+        page < 10 &&
+        (Object.keys(obj(obj(bs)['next_page_params'])).length > 0 ||
+          (network === 'mainnet' && list(obj(gt)['data']).length >= 20))
+          ? page + 1
+          : null,
       observedAt: new Date().toISOString(),
     };
   }

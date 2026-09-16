@@ -2202,3 +2202,138 @@
   color: #8b8b93;
   flex-shrink: 0;
 }
+
+.aw-research-scope {
+  display: flex;
+  gap: 20px;
+  padding: 0 0 18px;
+  border-bottom: 1px solid var(--aw-line);
+  margin-bottom: 24px;
+}
+.aw-research-scope button {
+  font-size: 12px;
+  color: #777;
+  padding: 8px 0;
+  border-bottom: 1px solid transparent;
+}
+.aw-research-scope button[aria-pressed="true"] {
+  color: #ededea;
+  border-color: #ededea;
+}
+.aw-ecosystem {
+  min-width: 0;
+  padding-bottom: 32px;
+}
+.aw-ecosystem-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.aw-ecosystem h2 {
+  font-size: 26px;
+  letter-spacing: -0.04em;
+  margin-bottom: 8px;
+}
+.aw-ecosystem p {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #999;
+}
+.aw-ecosystem a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #ededea;
+}
+.aw-ecosystem-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid #303035;
+  margin-bottom: 18px;
+  max-width: 520px;
+}
+.aw-ecosystem-search input {
+  min-width: 0;
+  width: 100%;
+  background: transparent;
+  color: #ededea;
+  outline: none;
+  font-size: 13px;
+}
+.aw-ecosystem-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  border-top: 1px solid #303035;
+  border-left: 1px solid #303035;
+  margin: 20px 0;
+}
+.aw-ecosystem-grid article {
+  padding: 24px;
+  border-right: 1px solid #303035;
+  border-bottom: 1px solid #303035;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.aw-ecosystem-grid article > span {
+  font: 10px monospace;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.aw-ecosystem-grid h3 {
+  font-size: 20px;
+  color: #ededea;
+}
+.aw-ecosystem-grid article a {
+  margin-top: auto;
+  padding-top: 12px;
+}
+.aw-ecosystem-coverage {
+  max-width: 850px;
+}
+.aw-project-result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 16px;
+  font-size: 12px;
+  color: #ededea;
+}
+.aw-project-result:hover {
+  background: #202024;
+}
+.aw-project-result span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.aw-project-result small {
+  color: #999;
+}
+.aw-search-kinds {
+  flex-wrap: wrap;
+}
+@media (max-width: 600px) {
+  .aw-ecosystem-heading {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+.aw-ecosystem .aw-search-kinds {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0;
+}
+.aw-ecosystem .aw-search-kinds button {
+  padding: 9px 12px;
+  font-size: 11px;
+  border: 1px solid #303035;
+}

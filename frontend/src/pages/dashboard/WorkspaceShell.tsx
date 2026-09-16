@@ -1,3 +1,4 @@
+import { useArcEcosystem } from "./ArcEcosystem";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import {
@@ -59,11 +60,15 @@ export default function WorkspaceShell({
   const [searchKind, setSearchKind] = useState("All");
   const { locked } = useWalletSession();
   const term = query.trim();
+  const ecosystem = useArcEcosystem(
+    term,
+    open && searchKind !== "Stocks & ETFs" && searchKind !== "Coins & tokens",
+  );
   useEffect(() => {
     setTokens(null);
     setTokenError("");
     setSearching(false);
-    if (!open || term.length < 2 || searchKind === "Stocks & ETFs") return;
+    if (!open || term.length < 2 || ["Stocks & ETFs", "Arc projects"].includes(searchKind)) return;
     const controller = new AbortController();
     setSearching(true);
     const timer = window.setTimeout(async () => {
@@ -138,7 +143,7 @@ export default function WorkspaceShell({
   const pages = destinations.filter((item) =>
     item.label.toLowerCase().includes(query.toLowerCase()),
   );
-  const stocks = term && searchKind !== "Coins & tokens" ? searchStocks(term) : [];
+  const stocks = term && ["All", "Stocks & ETFs"].includes(searchKind) ? searchStocks(term) : [];
   const openAsset = (destination: "stocks" | "markets", address: string) => {
     if (locked) return;
     onOpenAsset(destination, address);
@@ -224,7 +229,7 @@ export default function WorkspaceShell({
           {open && (
             <div id="workspace-search-results" className="aw-search-results">
               <div className="aw-search-kinds" role="group" aria-label="Search category">
-                {["All", "Stocks & ETFs", "Coins & tokens"].map((kind) => (
+                {["All", "Stocks & ETFs", "Coins & tokens", "Arc projects"].map((kind) => (
                   <button
                     key={kind}
                     aria-pressed={searchKind === kind}
@@ -267,7 +272,7 @@ export default function WorkspaceShell({
                   </button>
                 </>
               )}
-              {term.length >= 2 && searchKind !== "Stocks & ETFs" && (
+              {term.length >= 2 && ["All", "Coins & tokens"].includes(searchKind) && (
                 <>
                   <p>Coins & tokens · Arc Mainnet</p>
                   {searching && <p role="status">Searching connected sources…</p>}
@@ -299,8 +304,56 @@ export default function WorkspaceShell({
                   </button>
                 </>
               )}
-              {term && searchKind !== "Coins & tokens" && !stocks.length && (
+              {term && ["All", "Stocks & ETFs"].includes(searchKind) && !stocks.length && (
                 <p>No issuer-listed stocks match this search.</p>
+              )}
+              {["All", "Arc projects"].includes(searchKind) && (
+                <>
+                  <p>Arc projects & launches</p>
+                  {ecosystem.busy && <p role="status">Searching the ecosystem…</p>}
+                  {ecosystem.error && <p role="status">{ecosystem.error}</p>}
+                  {ecosystem.data?.items.slice(0, 6).map((project) => (
+                    <a
+                      className="aw-project-result"
+                      key={project.id}
+                      href={project.sourceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <span>
+                        <strong>{project.name}</strong>
+                        <small>
+                          {project.status === "launch-announced"
+                            ? "Launch announcement"
+                            : "Ecosystem listed"}
+                        </small>
+                      </span>
+                      <ArrowUpRight size={14} />
+                    </a>
+                  ))}
+                  {ecosystem.data && ecosystem.data.items.length === 0 && (
+                    <p>No sourced projects match.</p>
+                  )}
+                  {ecosystem.data && ecosystem.data.status !== "current" && (
+                    <p>Directory unavailable. Project coverage is incomplete.</p>
+                  )}
+                  <Link
+                    to="/dashboard"
+                    search={{ view: "markets", scope: "ecosystem", q: term || undefined }}
+                    className="aw-project-result"
+                    onClick={(event) => {
+                      if (locked) {
+                        event.preventDefault();
+                        return;
+                      }
+                      setOpen(false);
+                      setQuery("");
+                    }}
+                  >
+                    Browse {ecosystem.data?.items.length || "Arc"} projects & launches{" "}
+                    <ArrowUpRight size={14} />
+                  </Link>
+                </>
               )}
               {!term && (
                 <p>
