@@ -192,6 +192,12 @@ export function createStockTradingHandler(
       redirect: "error",
     });
     if (!response.ok) {
+      const failure = await response.json().catch(() => null);
+      if (failure?.errorCode === "QuoteAmountTooLowError")
+        throw new TradingError(
+          "This amount is below UniswapX’s current minimum for this pair. Try a larger amount; minimums vary by asset and market conditions.",
+          422,
+        );
       if ([401, 403].includes(response.status))
         throw new TradingError("Trading is currently unavailable for this request.", 503);
       if ([400, 404, 422].includes(response.status))

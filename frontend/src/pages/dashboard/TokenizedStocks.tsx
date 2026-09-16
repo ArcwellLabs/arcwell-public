@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowDownUp, ArrowUpRight, Check, Wallet } from "lucide-react";
+import { ArrowDownUp, ArrowUpRight, Wallet, ArrowRight, ShieldCheck } from "lucide-react";
 import {
   STOCK_ASSETS,
   stockPair,
@@ -14,6 +14,7 @@ import {
   verifyStockWallet,
   type StockWallet,
 } from "@/lib/stock-wallet";
+import AssetLogo from "@/components/AssetLogo";
 import "./tokenized-stocks.css";
 
 type Pending = { ticket: string; orderId: string; wallet: string; deadline: number };
@@ -329,26 +330,114 @@ export default function TokenizedStocks() {
   return (
     <section className="st-workspace" aria-labelledby="stock-title">
       <header className="st-heading">
-        <p className="q-eyebrow">ONDO STOCKS / ETHEREUM</p>
-        <h2 id="stock-title">Stocks, from your wallet.</h2>
-        <p>Trade tokenized stocks with UniswapX. Review here and authorize in your own wallet.</p>
-      </header>
-      {ready === false && (
-        <div className="st-notice" role="status">
-          <strong>Trading connection pending</strong>
-          <p>
-            Stock selection is available to preview. Quotes and orders will open once the trading
-            connection is activated.
-          </p>
+        <div>
+          <p className="q-eyebrow">EQUITIES, ONCHAIN / 01</p>
+          <h2 id="stock-title">
+            A new way to hold
+            <br />
+            <span>the names you know.</span>
+          </h2>
         </div>
-      )}
+        <p>
+          Tokenized stocks. Your wallet.
+          <br />
+          Powered by Ondo & UniswapX.
+        </p>
+      </header>
       <div className="st-grid">
+        <div className="st-market">
+          <div className="st-asset-feature" key={symbol}>
+            <div className="st-feature-top">
+              <span className="st-token-badge">ONDO STOCKS</span>
+              <span>ETHEREUM ↗</span>
+            </div>
+            <div className="st-feature-identity">
+              <AssetLogo symbol={symbol.replace("on", "")} />
+              <span>{asset.name}</span>
+            </div>
+            <div className="st-ticker" aria-label={asset.symbol}>
+              {symbol.replace("on", "")}
+              <span>on</span>
+            </div>
+            <div className="st-feature-bottom">
+              <span>
+                {symbol === "SPYon"
+                  ? "Broad market / ETF"
+                  : symbol === "TSLAon"
+                    ? "Automotive / Equity"
+                    : "Technology / Equity"}
+              </span>
+              <span>01—04</span>
+            </div>
+            <div className="st-dot-field" aria-hidden="true">
+              {Array.from({ length: 96 }, (_, i) => (
+                <i key={i} style={{ opacity: 0.1 + ((i * 7) % 13) / 18 }} />
+              ))}
+            </div>
+          </div>
+          <div className="st-list-heading">
+            <h3>Explore the collection</h3>
+            <span>04 ASSETS</span>
+          </div>
+          <div className="st-asset-list" role="group" aria-label="Choose a tokenized stock">
+            {STOCK_ASSETS.map((item, index) => (
+              <button
+                key={item.symbol}
+                type="button"
+                aria-pressed={symbol === item.symbol}
+                disabled={locked}
+                onClick={() => {
+                  invalidate();
+                  setSymbol(item.symbol);
+                  setAmount("");
+                }}
+              >
+                <span className="st-row-number">0{index + 1}</span>
+                <AssetLogo symbol={item.symbol.replace("on", "")} />
+                <span className="st-row-name">
+                  <strong>{item.name}</strong>
+                  <small>{item.symbol}</small>
+                </span>
+                <span className="st-row-kind">{item.symbol === "SPYon" ? "ETF" : "Equity"}</span>
+                <ArrowUpRight size={17} />
+              </button>
+            ))}
+          </div>
+          <aside className="st-context">
+            <div>
+              <ShieldCheck size={18} />
+              <h3>Your keys. Your position.</h3>
+            </div>
+            <p>
+              Tokenized exposure issued by Ondo. Review the quote here, then authorize with your
+              wallet. Token rights differ from directly owning shares.
+            </p>
+            <div className="st-source-links">
+              <a
+                href={`https://app.ondo.finance/assets/${symbol.toLowerCase()}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Issuer details <ArrowUpRight size={13} />
+              </a>
+              <a
+                href={`https://etherscan.io/token/${asset.address}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Token contract <ArrowUpRight size={13} />
+              </a>
+            </div>
+          </aside>
+        </div>
         <div className="st-ticket">
           <div className="st-ticket-head">
-            <span>YOUR TRADE</span>
-            <span>ETHEREUM · CHAIN 1</span>
+            <span>PLACE A TRADE</span>
+            <span className="st-network-dot">Ethereum</span>
           </div>
-          <label htmlFor="stock-asset">Tokenized stock</label>
+          <h3 className="st-ticket-title">Make your move.</h3>
+          <p className="st-ticket-subtitle">USDC ⇄ {symbol}</p>
+          <label htmlFor="stock-asset">Asset</label>
           <select
             id="stock-asset"
             value={symbol}
@@ -392,24 +481,37 @@ export default function TokenizedStocks() {
               Sell
             </button>
           </div>
-          <label htmlFor="stock-amount">You pay ({inputSymbol})</label>
-          <input
-            id="stock-amount"
-            value={amount}
-            disabled={locked}
-            inputMode="decimal"
-            placeholder="0.00"
-            autoComplete="off"
-            onChange={(e) => {
-              invalidate();
-              setAmount(e.target.value);
-            }}
-          />
+          <div className="st-amount-box">
+            <label htmlFor="stock-amount">You pay ({inputSymbol})</label>
+            <input
+              id="stock-amount"
+              value={amount}
+              disabled={locked}
+              inputMode="decimal"
+              placeholder="0.00"
+              autoComplete="off"
+              onChange={(e) => {
+                invalidate();
+                setAmount(e.target.value);
+              }}
+            />
+          </div>
           <p className="st-caption">
             {balance !== null
               ? `${balance} ${inputSymbol} available in your Ethereum wallet`
               : "Uses your Ethereum wallet balance. Arc funds stay on Arc."}
           </p>
+          <div className="st-receive">
+            <span>You receive</span>
+            <strong>
+              {quote
+                ? `${quote.minimum} ${quote.outputSymbol} minimum`
+                : side === "buy"
+                  ? symbol
+                  : "USDC"}
+            </strong>
+            <span>{quote ? "From your current quote" : "Amount shown after live quote"}</span>
+          </div>
           <button
             type="button"
             className="st-wallet"
@@ -427,8 +529,21 @@ export default function TokenizedStocks() {
             disabled={!ready || !address || !amount || locked}
             onClick={requestQuote}
           >
-            {busy || "Get live quote"}
+            {busy || "Review quote"} <ArrowRight size={16} />
           </button>
+          <div className="st-route">
+            <span>Your wallet</span>
+            <ArrowRight size={12} />
+            <span>UniswapX</span>
+            <ArrowRight size={12} />
+            <span>{side === "buy" ? symbol : "USDC"}</span>
+          </div>
+          {ready === false && (
+            <div className="st-notice" role="status">
+              <strong>Trading connection pending</strong>
+              <p>Browse assets now. Quotes open when the connection is activated.</p>
+            </div>
+          )}
           {approvalHash && (
             <div className="st-review">
               <a
@@ -504,36 +619,6 @@ export default function TokenizedStocks() {
             </p>
           )}
         </div>
-        <aside className="st-context">
-          <div className="st-asset-monogram">{asset.name.slice(0, 1)}</div>
-          <p className="q-eyebrow">{asset.symbol} / ONDO</p>
-          <h3>{asset.name}</h3>
-          <p>
-            Tokenized equity exposure issued by Ondo. Token rights differ from directly owning the
-            underlying shares.
-          </p>
-          <a
-            href={`https://app.ondo.finance/assets/${symbol.toLowerCase()}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Issuer details <ArrowUpRight size={14} />
-          </a>
-          <a
-            href={`https://etherscan.io/token/${asset.address}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Ethereum token contract <ArrowUpRight size={14} />
-          </a>
-          <div className="st-context-note">
-            <Check size={17} />
-            <p>
-              Funds remain in your wallet until an authorized trade settles. These trades do not
-              change your paper portfolio.
-            </p>
-          </div>
-        </aside>
       </div>
       {pending && (
         <section className="st-order" aria-live="polite">

@@ -82,7 +82,7 @@ export default function InvestingWorkspace(props: Props) {
     <div className="quant-workspace">
       {terminal ? (
         <header className="research-mode-header">
-          <h1>Market intelligence</h1>
+          <h1>{view === "stocks" ? "Stocks" : "Market intelligence"}</h1>
           <div className="research-mode-switch" role="group" aria-label="Workspace mode">
             <button aria-pressed={view === "stocks"} onClick={() => onNavigate("stocks")}>
               Tokenized stocks

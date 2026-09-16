@@ -270,3 +270,21 @@ test('a client cannot modify the quote amount and status lookup survives an exec
   assert.equal(status.status, 200);
   assert.equal((await status.json()).status, 'unknown');
 });
+
+test('provider minimum order failures explain the actionable constraint without reflecting provider text', async () => {
+  const handler = createStockTradingHandler({
+    apiKey: 'test',
+    enabled: true,
+    fetcher: async () =>
+      Response.json(
+        { errorCode: 'QuoteAmountTooLowError', detail: 'untrusted provider text' },
+        { status: 404 },
+      ),
+  });
+  const response = await handler(request({ action: 'quote', intent }));
+  assert.equal(response.status, 422);
+  const body = await response.json();
+  assert.match(body.error, /below UniswapX.*minimum/);
+  assert.equal(body.notSubmitted, true);
+  assert.doesNotMatch(body.error, /untrusted/);
+});
