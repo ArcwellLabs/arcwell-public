@@ -7,7 +7,7 @@
 
 <p align="center">
   <a href="https://www.arcwellfi.com/dashboard"><strong>Open the beta</strong></a> ·
-  <a href="#the-mvp-in-five-views">Product tour</a> ·
+  <a href="#the-workspace-in-six-views">Product tour</a> ·
   <a href="docs/briefs/overview.md">Project overview</a> ·
   <a href="#run-locally">Quick start</a> ·
   <a href="https://x.com/ARCWELLFI">Follow on X</a>
@@ -24,11 +24,11 @@
 
 ARCWELL makes the core investing journey tangible: find an asset, inspect its
 price history, practice a buy or sell, and see what changed in your portfolio.
-The MVP puts that journey into **five connected views**, with interactive charts,
+The MVP puts that journey into **six connected views**, with interactive charts,
 clear order review, and a paper account that stays with you in the same browser.
 
-Open it and start exploring. There is no account setup, wallet connection, API key,
-or database to configure for the demonstration.
+Open it and start exploring. Paper investing requires no account setup, API key, or database. Optional wallet
+connection enables account observation in the Arc workspace.
 
 **Markets now connects to live Arc data.** Search by name, symbol, or contract
 address and inspect source-linked prices, liquidity, volume, contract metadata,
@@ -40,13 +40,13 @@ freshness, and unavailable-data behavior.
 
 [![ARCWELL MVP portfolio with five-view navigation, holdings, allocation, and synthetic history](docs/assets/mvp-portfolio.jpg)](https://www.arcwellfi.com/dashboard)
 
-<p align="center"><sub>The MVP interface: Portfolio, Markets, Trade, Activity, and Settings. All figures shown are sample data.</sub></p>
+<p align="center"><sub>Earlier five-view portfolio interface. Portfolio figures shown are sample data.</sub></p>
 
-|       5 connected views       |      16 sample instruments       |        Local paper account         |
+|       6 connected views       |      16 sample instruments       |        Local paper account         |
 | :---------------------------: | :------------------------------: | :--------------------------------: |
 | One focused investing journey | Search, filter, compare, inspect | Holdings, cash, fills, and exports |
 
-## The MVP in five views
+## The workspace in six views
 
 ### 01 · Portfolio — see the whole account
 
@@ -99,7 +99,16 @@ symbol, quantity, price, and time. This is the history of the local practice acc
 
 [Explore Activity →](https://www.arcwellfi.com/dashboard?view=ledger)
 
-### 05 · Settings — keep control of your data
+### 05 · Arc — observe your wallet and transactions
+
+Connect an injected wallet or inspect a public address on Arc Mainnet or Testnet.
+Switch networks, read one native USDC balance, estimate a native USDC transfer fee,
+and look up transaction inclusion and finality. Estimates are read-only and do not
+sign or broadcast transactions. A receipt does not establish a stock fill.
+
+[Explore Arc →](https://www.arcwellfi.com/dashboard?view=arc) · [Wallet guide](docs/ARC-WALLET.md)
+
+### 06 · Settings — keep control of your data
 
 Export the complete paper account as JSON, read the product's current limits, and
 reset to the sample starting account with confirmation. Storage status is visible,
@@ -113,14 +122,15 @@ account import is not part of this MVP.
 
 ## Small surface area, thoughtful engineering
 
-The interface stays focused because its five views share the same account model.
+The paper investing views share the same account model; live Arc observations
+remain separate.
 A paper fill is a state transition: validation happens first, then cash, positions,
 and the activity ledger update together. A persistence hook saves that state and
 checks its structure when loading it again.
 
 ```mermaid
 flowchart LR
-    Runtime["Web runtime<br/>TanStack Start + Nitro"] -->|"HTML and assets"| UI["Five-view React workspace"]
+    Runtime["Web runtime<br/>TanStack Start + Nitro"] -->|"HTML and assets"| UI["React workspace"]
     UI -->|"Asset search and research"| API["Read-only asset API"]
     API --> Sources["Arc RPC · GeckoTerminal<br/>DEX Screener · Arc explorer"]
     Fixtures["Deterministic sample data"] --> Logic["Portfolio calculations<br/>and paper-order rules"]
@@ -137,7 +147,7 @@ wallet signing, deposit flow, or real order execution in the MVP.
 | Technology                          | Role in the experience                                                     |
 | ----------------------------------- | -------------------------------------------------------------------------- |
 | **React 19 + TypeScript**           | Shared account state, reusable views, and typed domain logic               |
-| **TanStack Start + Router**         | Server rendering and direct links to the five workspace views              |
+| **TanStack Start + Router**         | Server rendering and direct links to the workspace views                   |
 | **Recharts + custom SVG charts**    | Portfolio histories, candles, allocation, and market comparisons           |
 | **Tailwind CSS + Radix primitives** | A consistent dark interface and structured interactive controls            |
 | **Pure calculation functions**      | Inspectable statistics, deterministic fixtures, and paper-order validation |
@@ -163,7 +173,7 @@ verify selected behavior; they do not constitute an independent security audit.
 
 ## Try the complete workflow
 
-1. Open **Markets**, choose a sector, and inspect a sample asset.
+1. Open **Trade**, search by company or symbol, and inspect a sample instrument.
 2. In **Trade**, review and confirm a small paper buy.
 3. Open **Portfolio** to see the updated holding and allocation.
 4. Check **Activity** for the fill, then use **Settings** to export the account.
@@ -216,7 +226,7 @@ for which views belong to the public dashboard.
 | Brief                                          | What it explains                                                        |
 | ---------------------------------------------- | ----------------------------------------------------------------------- |
 | [Project overview](docs/briefs/overview.md)    | The MVP's purpose, customer value, and evaluation criteria              |
-| [Frontend experience](docs/briefs/frontend.md) | The five-view journey and the technology behind the interface           |
+| [Frontend experience](docs/briefs/frontend.md) | The original paper-investing journey and interface technology           |
 | [Backend architecture](docs/briefs/backend.md) | Application delivery, paper-account data flow, and operating boundaries |
 
 ## Help shape the core experience
