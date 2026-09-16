@@ -96,3 +96,13 @@ starter. It does not replace individual package license texts.
 | `vite`                              | 8.2.2           | MIT                                                              |
 | `vite-tsconfig-paths`               | 6.1.1           | MIT                                                              |
 | `zod`                               | 3.25.76         | MIT                                                              |
+
+## Company, fund sponsor, and stablecoin marks
+
+The images in `frontend/public/asset-logos/` identify represented companies,
+fund sponsors, and contract-matched stablecoins. Their source URLs and retrieval
+date are recorded in `frontend/public/asset-logos/sources.json`. These third-party
+marks remain the property of their respective owners and are not licensed under
+ARCWELL's software license. Display does not imply endorsement, stock backing,
+issuer partnership, or trading availability. The neutral `unverified.svg` is an
+ARCWELL illustration, not an issuer mark.
