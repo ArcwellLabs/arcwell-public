@@ -3,11 +3,11 @@
 </p>
 <h1 align="center">ARCWELL</h1>
 <p align="center"><strong>Explore assets. Practice investing. Know your portfolio.</strong></p>
-<p align="center">A focused paper-investing workspace with a premium trading interface.</p>
+<p align="center">Live Arc research, wallet observations, token swap preparation, and paper investing.</p>
 
 <p align="center">
   <a href="https://www.arcwellfi.com/dashboard"><strong>Open the beta</strong></a> ·
-  <a href="#the-workspace-in-six-views">Product tour</a> ·
+  <a href="#the-workspace-in-seven-views">Product tour</a> ·
   <a href="docs/briefs/overview.md">Project overview</a> ·
   <a href="#run-locally">Quick start</a> ·
   <a href="https://x.com/ARCWELLFI">Follow on X</a>
@@ -24,7 +24,7 @@
 
 ARCWELL makes the core investing journey tangible: find an asset, inspect its
 price history, practice a buy or sell, and see what changed in your portfolio.
-The MVP puts that journey into **six connected views**, with interactive charts,
+The MVP puts that journey into **seven connected views**, with interactive charts,
 clear order review, and a paper account that stays with you in the same browser.
 
 Open it and start exploring. Paper investing requires no account setup, API key, or database. Optional wallet
@@ -33,7 +33,9 @@ connection enables account observation in the Arc workspace.
 **Markets now connects to live Arc data.** Search by name, symbol, or contract
 address and inspect source-linked prices, liquidity, volume, contract metadata,
 and available history. Portfolio and Trade remain paper simulations with synthetic
-prices and starting holdings. No real assets or money move.
+prices and starting holdings. Paper orders move no real assets or money.
+The Swap view prepares Arc token pairs for review and authorization on the official
+Uniswap app; external swaps are separate from the paper account.
 
 Read the [asset research guide](docs/ASSET-RESEARCH.md) for coverage, sources,
 freshness, and unavailable-data behavior.
@@ -42,11 +44,11 @@ freshness, and unavailable-data behavior.
 
 <p align="center"><sub>Earlier five-view portfolio interface. Portfolio figures shown are sample data.</sub></p>
 
-|       6 connected views       |      16 sample instruments       |        Local paper account         |
+|       7 connected views       |      16 sample instruments       |        Local paper account         |
 | :---------------------------: | :------------------------------: | :--------------------------------: |
 | One focused investing journey | Search, filter, compare, inspect | Holdings, cash, fills, and exports |
 
-## The workspace in six views
+## The workspace in seven views
 
 ### 01 · Portfolio — see the whole account
 
@@ -71,8 +73,8 @@ available daily history. DEX Screener, GeckoTerminal, Arc RPC, and explorer
 observations carry source links and retrieval times. Missing data stays unavailable.
 Mainnet pricing is never applied to testnet assets.
 
-Research is read-only; selecting a real Arc asset does not turn it into an executable
-order or silently add it to the separate sample trading universe.
+Research observations are not executable quotes. Swap preparation and the separate
+paper trading universe each keep their own explicit workflow.
 
 [Explore Markets →](https://www.arcwellfi.com/dashboard?view=markets)
 
@@ -91,7 +93,17 @@ it does not represent live liquidity or change the fixed-price paper fill.
 
 [Explore Trade →](https://www.arcwellfi.com/dashboard?view=trading)
 
-### 04 · Activity — follow what changed
+### 04 · Swap — prepare an Arc token exchange
+
+Inspect a mainnet token contract, choose USDC into the token or the reverse, and
+enter an amount. Review the exact contracts and continue to Uniswap for its live
+quote, slippage settings, fees, and wallet authorization. The default EURC/USDC
+pair was checked against the live provider interface. Route availability varies;
+ARCWELL does not submit transactions or treat a token symbol as proof of stock backing.
+
+[Explore Swap →](https://www.arcwellfi.com/dashboard?view=swap) · [Swap guide](docs/ARC-SWAPS.md)
+
+### 05 · Activity — follow what changed
 
 Review simulated buys and sells, filter the paper activity, inspect its cash
 history, and export fills as CSV. Each paper fill links the decision back to its
@@ -99,7 +111,7 @@ symbol, quantity, price, and time. This is the history of the local practice acc
 
 [Explore Activity →](https://www.arcwellfi.com/dashboard?view=ledger)
 
-### 05 · Arc — observe your wallet and transactions
+### 06 · Arc — observe your wallet and transactions
 
 Connect an injected wallet or inspect a public address on Arc Mainnet or Testnet.
 Switch networks, read one native USDC balance, estimate a native USDC transfer fee,
@@ -108,7 +120,7 @@ sign or broadcast transactions. A receipt does not establish a stock fill.
 
 [Explore Arc →](https://www.arcwellfi.com/dashboard?view=arc) · [Wallet guide](docs/ARC-WALLET.md)
 
-### 06 · Settings — keep control of your data
+### 07 · Settings — keep control of your data
 
 Export the complete paper account as JSON, read the product's current limits, and
 reset to the sample starting account with confirmation. Storage status is visible,
@@ -136,13 +148,15 @@ flowchart LR
     Fixtures["Deterministic sample data"] --> Logic["Portfolio calculations<br/>and paper-order rules"]
     UI <-->|"Interaction and results"| Logic
     UI <-->|"Save and restore"| Store["Browser localStorage"]
+    UI -->|"Reviewed pair and amount"| Uniswap["Official Uniswap app<br/>Quote and wallet authorization"]
     UI -->|"User downloads"| Export["CSV and account JSON"]
 ```
 
 **The browser runs the investing simulation.** The server renders and delivers
 the application and serves cached, rate-limited asset research. There is no
-customer-account database, brokerage connection,
-wallet signing, deposit flow, or real order execution in the MVP.
+customer-account database or brokerage connection. Wallet signing and token swap
+execution take place in Uniswap, after an explicit external handoff. ARCWELL does
+not receive the signing keys or synthesize a successful fill.
 
 | Technology                          | Role in the experience                                                     |
 | ----------------------------------- | -------------------------------------------------------------------------- |
