@@ -18,6 +18,7 @@ import Preloader from "@/components/Preloader";
 export default function Layout() {
   const location = useLocation();
   const dashboard = location.pathname === "/dashboard";
+  const productDocument = ["/roadmap", "/whitepaper"].includes(location.pathname);
   const assetResearch =
     dashboard && new URLSearchParams(location.searchStr).get("view") === "markets";
   const swapWorkspace = dashboard && new URLSearchParams(location.searchStr).get("view") === "swap";
@@ -46,7 +47,21 @@ export default function Layout() {
           <Outlet />
         </motion.div>
       </main>
-      {dashboard ? (
+      {productDocument ? (
+        <footer
+          data-roadmap-shell-footer
+          className="border-t border-hairline px-6 py-8 text-xs text-ink-muted md:px-10"
+        >
+          <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-5">
+            <span>ARCWELL · Product direction · September 2026</span>
+            <nav className="flex gap-6" aria-label="Product documents">
+              <Link to="/roadmap">Roadmap</Link>
+              <Link to="/whitepaper">Whitepaper</Link>
+              <Link to="/dashboard">Explore the app ↗</Link>
+            </nav>
+          </div>
+        </footer>
+      ) : dashboard ? (
         <footer className="border-t border-hairline px-6 py-7 text-xs text-ink-muted md:px-10">
           <div className="mx-auto flex max-w-[1680px] flex-wrap items-center justify-between gap-4">
             <span>

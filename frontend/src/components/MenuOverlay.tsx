@@ -6,6 +6,7 @@ import { comingSoon } from "@/lib/comingSoon";
 const LINKS = [
   { to: "/", label: "Home" },
   { to: "/studio", label: "Operating model" },
+  { to: "/roadmap", label: "Roadmap" },
   { to: "/projects", label: "Record explorer" },
   { to: "/articles", label: "Field notes" },
   { to: "/contact", label: "Start a pilot" },
