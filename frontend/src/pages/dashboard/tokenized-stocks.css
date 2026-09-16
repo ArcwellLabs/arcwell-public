@@ -525,6 +525,10 @@
     grid-template-columns: 1fr;
     gap: 24px;
   }
+  .st-trade-column {
+    grid-row: 1;
+    min-width: 0;
+  }
   .st-ticket {
     position: static;
     grid-row: 1;

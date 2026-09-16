@@ -1,0 +1,148 @@
+.arc-stock-funding {
+  margin-bottom: 18px;
+  padding: 24px;
+  background: linear-gradient(145deg, #14231f, #0e1412);
+  border: 1px solid #344a40;
+  border-radius: 20px;
+  color: #edf3e9;
+}
+.arc-funding-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.arc-funding-orb {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid #bddd89;
+  color: #d7f9a8;
+  font:
+    500 23px Georgia,
+    serif;
+  box-shadow: inset 0 0 16px #abc97c25;
+}
+.arc-funding-kicker {
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: #c1de9b;
+}
+.arc-stock-funding h3 {
+  margin: 4px 0;
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.arc-funding-route {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 22px 0 14px;
+  font-size: 11px;
+  color: #aebdaf;
+}
+.arc-funding-route strong {
+  color: #d7f9a8;
+}
+.arc-stock-funding p {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #aebdaf;
+  margin: 12px 0;
+}
+.arc-stock-funding label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  margin-top: 20px;
+  color: #c4d0c1;
+}
+.arc-stock-funding input {
+  width: 100%;
+  min-width: 0;
+  margin: 8px 0 12px;
+  border: 1px solid #435246;
+  border-radius: 8px;
+  background: #ffffff06;
+  padding: 12px;
+  color: #f3f6ed;
+  font-size: 22px;
+}
+.arc-stock-funding button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  border: 0;
+  border-radius: 8px;
+  background: #d5edb6;
+  color: #17221a;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.arc-stock-funding button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.arc-stock-funding .arc-funding-secondary {
+  background: transparent;
+  color: #c2cdbd;
+  font-weight: 400;
+}
+.arc-stock-funding dl {
+  margin: 10px 0;
+}
+.arc-stock-funding dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 11px;
+  padding: 7px 0;
+  border-bottom: 1px solid #ffffff0a;
+}
+.arc-stock-funding dt {
+  color: #aebdaf;
+}
+.arc-stock-funding dd {
+  margin: 0;
+  text-align: right;
+}
+.arc-stock-funding small {
+  display: block;
+  font-size: 10px;
+  line-height: 1.6;
+  color: #aebdaf;
+  margin: 12px 0;
+}
+.arc-stock-funding a {
+  display: inline-block;
+  color: #d5edb6;
+  font-size: 11px;
+  margin: 12px 12px 0 0;
+}
+.arc-stock-funding .arc-funding-error {
+  color: #ffc6b8;
+}
+.arc-stock-funding .arc-funding-success {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #d5edb6;
+}
+.arc-funding-progress {
+  margin-top: 18px;
+}
+.arc-funding-progress input {
+  font-size: 11px;
+}
+.arc-stock-funding :focus-visible {
+  outline: 2px solid #d5edb6;
+  outline-offset: 3px;
+}

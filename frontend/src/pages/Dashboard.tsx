@@ -208,7 +208,7 @@ export default function Dashboard() {
             </p>
             <span className="rounded-full border border-hairline px-3 py-1 font-mono text-[10px] text-ink-muted">
               {view === "stocks"
-                ? "Ethereum Mainnet"
+                ? "Arc funding · Ethereum settlement"
                 : view === "swap"
                   ? "Arc Mainnet"
                   : view === "arc"

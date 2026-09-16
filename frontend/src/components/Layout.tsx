@@ -72,7 +72,7 @@ export default function Layout() {
           <div className="mx-auto flex max-w-[1680px] flex-wrap items-center justify-between gap-4">
             <span>
               {stockWorkspace
-                ? "ARCWELL / Tokenized equities · Ethereum"
+                ? "ARCWELL / Arc funding · Tokenized equities"
                 : swapWorkspace
                   ? "ARCWELL / Arc token swaps · Execution on Uniswap"
                   : arcWorkspace

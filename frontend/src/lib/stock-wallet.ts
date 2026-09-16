@@ -14,7 +14,7 @@ export async function verifyStockWallet(wallet: StockWallet, address: string) {
   ]);
   if (chain !== "0x1")
     throw new Error(
-      "Switch your wallet to Ethereum Mainnet. Arc funds cannot be used for this trade.",
+      "Switch to Ethereum Mainnet to place the stock order. Use the Arc funding panel first to transfer Arc USDC.",
     );
   if (!Array.isArray(accounts) || String(accounts[0]).toLowerCase() !== address.toLowerCase())
     throw new Error("Your wallet account changed. Reconnect and request a fresh quote.");
