@@ -1,18 +1,10 @@
-// Ethereum deployments verified against each issuer asset page on 2026-09-16.
+import { STOCK_CATALOG } from './stock-catalog.ts';
+// Ethereum deployments are synced from the issuer-maintained token list.
 // Never infer a token address from a stock ticker or use paper-book balances here.
 export const STOCK_CHAIN_ID = 1;
 export const STOCK_USDC = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48';
 export const STOCK_PERMIT2 = '0x000000000022d473030f116ddee9f6b43ac78ba3';
-export const STOCK_ASSETS = [
-  { symbol: 'AAPLon', name: 'Apple', address: '0x14c3abf95cb9c93a8b82c1cdcb76d72cb87b2d4c' },
-  { symbol: 'NVDAon', name: 'NVIDIA', address: '0x2d1f7226bd1f780af6b9a49dcc0ae00e8df4bdee' },
-  { symbol: 'TSLAon', name: 'Tesla', address: '0xf6b1117ec07684d3958cad8beb1b302bfd21103f' },
-  {
-    symbol: 'SPYon',
-    name: 'SPDR S&P 500 ETF',
-    address: '0xfedc5f4a6c38211c1338aa411018dfaf26612c08',
-  },
-] as const;
+export const STOCK_ASSETS = STOCK_CATALOG;
 
 export type StockIntent = {
   symbol: string;
@@ -48,9 +40,9 @@ export function stockPair(intent: StockIntent) {
     asset,
     input: buy ? STOCK_USDC : asset.address,
     output: buy ? asset.address : STOCK_USDC,
-    inputDecimals: buy ? 6 : 18,
-    outputDecimals: buy ? 18 : 6,
-    amount: stockUnits(intent.amount, buy ? 6 : 18),
+    inputDecimals: buy ? 6 : asset.decimals,
+    outputDecimals: buy ? asset.decimals : 6,
+    amount: stockUnits(intent.amount, buy ? 6 : asset.decimals),
   };
 }
 

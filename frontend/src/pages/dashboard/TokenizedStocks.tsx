@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { ArrowDownUp, ArrowUpRight, Wallet, ArrowRight, ShieldCheck } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowDownUp, ArrowUpRight, Wallet, ArrowRight, ShieldCheck, Search } from "lucide-react";
 import {
   STOCK_ASSETS,
   stockPair,
@@ -14,7 +14,9 @@ import {
   verifyStockWallet,
   type StockWallet,
 } from "@/lib/stock-wallet";
-import AssetLogo from "@/components/AssetLogo";
+import { STOCK_CATALOG_METADATA } from "../../../../src/stock-catalog";
+import type { StockAsset } from "../../../../src/stock-catalog-source";
+import "@/components/asset-logo.css";
 import "./tokenized-stocks.css";
 
 type Pending = { ticket: string; orderId: string; wallet: string; deadline: number };
@@ -44,9 +46,33 @@ async function api<T>(body?: unknown): Promise<T> {
   return data as T;
 }
 
+function StockLogo({ asset }: { asset: StockAsset }) {
+  const [failed, setFailed] = useState("");
+  return (
+    <img
+      className="asset-logo"
+      src={failed === asset.logoURI ? "/asset-logos/unverified.svg" : asset.logoURI}
+      alt={`${asset.name} token logo`}
+      width={32}
+      height={32}
+      loading="lazy"
+      decoding="async"
+      onError={() => setFailed(asset.logoURI)}
+    />
+  );
+}
+
 export default function TokenizedStocks() {
   const [ready, setReady] = useState<boolean | null>(null);
   const [symbol, setSymbol] = useState<string>("AAPLon");
+  const [query, setQuery] = useState("");
+  const [visibleCount, setVisibleCount] = useState(24);
+  const filteredAssets = useMemo(() => {
+    const term = query.trim().toLowerCase();
+    return STOCK_ASSETS.filter((item) =>
+      `${item.symbol} ${item.name} ${item.address}`.toLowerCase().includes(term),
+    );
+  }, [query]);
   const [side, setSide] = useState<"buy" | "sell">("buy");
   const [amount, setAmount] = useState("");
   const [address, setAddress] = useState("");
@@ -352,22 +378,19 @@ export default function TokenizedStocks() {
               <span>ETHEREUM ↗</span>
             </div>
             <div className="st-feature-identity">
-              <AssetLogo symbol={symbol.replace("on", "")} />
+              <StockLogo asset={asset} />
               <span>{asset.name}</span>
             </div>
             <div className="st-ticker" aria-label={asset.symbol}>
-              {symbol.replace("on", "")}
+              {symbol.replace(/on$/, "")}
               <span>on</span>
             </div>
             <div className="st-feature-bottom">
+              <span>Issuer-listed · Ethereum</span>
               <span>
-                {symbol === "SPYon"
-                  ? "Broad market / ETF"
-                  : symbol === "TSLAon"
-                    ? "Automotive / Equity"
-                    : "Technology / Equity"}
+                {STOCK_ASSETS.findIndex((item) => item.symbol === symbol) + 1} /{" "}
+                {STOCK_ASSETS.length}
               </span>
-              <span>01—04</span>
             </div>
             <div className="st-dot-field" aria-hidden="true">
               {Array.from({ length: 96 }, (_, i) => (
@@ -376,11 +399,37 @@ export default function TokenizedStocks() {
             </div>
           </div>
           <div className="st-list-heading">
-            <h3>Explore the collection</h3>
-            <span>04 ASSETS</span>
+            <h3>Stocks & ETFs</h3>
+            <span>{STOCK_ASSETS.length} ASSETS</span>
+          </div>
+          <label className="st-catalog-search">
+            <Search size={16} aria-hidden="true" />
+            <input
+              type="search"
+              aria-label="Search stocks and ETFs"
+              placeholder="Search company, ticker or contract"
+              value={query}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setVisibleCount(24);
+              }}
+            />
+          </label>
+          <div className="st-catalog-summary" role="status">
+            {query.trim()
+              ? `${filteredAssets.length} ${filteredAssets.length === 1 ? "match" : "matches"}`
+              : `${STOCK_ASSETS.length} issuer-listed assets`}
+            <a
+              href="https://github.com/ondoprotocol/ondo-global-markets-token-list"
+              target="_blank"
+              rel="noreferrer"
+              title={`Issuer list published ${STOCK_CATALOG_METADATA.publishedAt}`}
+            >
+              Ondo catalog <ArrowUpRight size={12} />
+            </a>
           </div>
           <div className="st-asset-list" role="group" aria-label="Choose a tokenized stock">
-            {STOCK_ASSETS.map((item, index) => (
+            {filteredAssets.slice(0, visibleCount).map((item, index) => (
               <button
                 key={item.symbol}
                 type="button"
@@ -392,17 +441,32 @@ export default function TokenizedStocks() {
                   setAmount("");
                 }}
               >
-                <span className="st-row-number">0{index + 1}</span>
-                <AssetLogo symbol={item.symbol.replace("on", "")} />
+                <span className="st-row-number">{String(index + 1).padStart(2, "0")}</span>
+                <StockLogo asset={item} />
                 <span className="st-row-name">
                   <strong>{item.name}</strong>
                   <small>{item.symbol}</small>
                 </span>
-                <span className="st-row-kind">{item.symbol === "SPYon" ? "ETF" : "Equity"}</span>
+
                 <ArrowUpRight size={17} />
               </button>
             ))}
           </div>
+          {!filteredAssets.length && (
+            <p className="st-catalog-empty">No issuer-listed assets match this search.</p>
+          )}
+          {visibleCount < filteredAssets.length && (
+            <button
+              className="st-catalog-more"
+              onClick={() => setVisibleCount((count) => count + 24)}
+            >
+              Show more · {Math.min(visibleCount, filteredAssets.length)} of {filteredAssets.length}
+            </button>
+          )}
+          <p className="st-catalog-note">
+            Catalog coverage is not a live quote. Available routes and minimum amounts are checked
+            when you request one.
+          </p>
           <aside className="st-context">
             <div>
               <ShieldCheck size={18} />

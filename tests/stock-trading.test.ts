@@ -288,3 +288,33 @@ test('provider minimum order failures explain the actionable constraint without 
   assert.equal(body.notSubmitted, true);
   assert.doesNotMatch(body.error, /untrusted/);
 });
+
+test('expanded catalog quotes validate the selected issuer contract and reject substitutions', async () => {
+  const microsoft = STOCK_ASSETS.find((asset) => asset.symbol === 'MSFTon')!;
+  const expandedIntent = { ...intent, symbol: 'MSFTon' };
+  const { response } = fixture({
+    outputs: [
+      {
+        token: microsoft.address,
+        recipient: signer.address,
+        startAmount: '60000000000000000',
+        endAmount: '59700000000000000',
+      },
+    ],
+  });
+  const handler = createStockTradingHandler({
+    apiKey: 'test',
+    enabled: true,
+    now: () => now,
+    fetcher: async (_url, init) => {
+      const body = JSON.parse(String(init?.body));
+      assert.equal(body.tokenOut, microsoft.address);
+      assert.equal(body.tokenOutChainId, 1);
+      return Response.json(response);
+    },
+  });
+  const result = await handler(request({ action: 'quote', intent: expandedIntent }));
+  assert.equal(result.status, 200);
+  assert.equal((await result.json()).outputSymbol, 'MSFTon');
+  assert.throws(() => validateStockQuote(fixture().response, expandedIntent, now));
+});
