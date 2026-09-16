@@ -11,7 +11,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "format:integration:check": "prettier --check src/lib/arc.ts src/lib/arc-integrations.ts src/pages/dashboard/ArcTools.tsx src/pages/Dashboard.tsx src/pages/dashboard/Overview.tsx src/pages/dashboard/Transactions.tsx"
+    "format:integration:check": "prettier --check src/lib/arc.ts src/lib/arc-integrations.ts src/pages/dashboard/ArcTools.tsx src/pages/Dashboard.tsx src/pages/dashboard/Overview.tsx src/pages/dashboard/Transactions.tsx src/lib/quant.ts src/pages/dashboard/InvestingWorkspace.tsx src/pages/dashboard/QuantCharts.tsx src/pages/dashboard/LegacyAnalytics.tsx src/pages/dashboard/investing.css src/routes/dashboard.tsx src/lib/quant-format.ts src/hooks/usePaperBook.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

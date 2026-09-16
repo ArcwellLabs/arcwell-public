@@ -24,8 +24,8 @@ import type { DraftRecord } from "@/pages/dashboard/ArcTools";
 import type { PaymentDraft } from "@/lib/arc";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DISCLAIMER, NETWORK_STATUS } from "@/data/dashboard";
-import { EASE, StatusPill } from "@/pages/dashboard/ui";
+import { DISCLAIMER } from "@/data/dashboard";
+import { EASE } from "@/pages/dashboard/ui";
 import Overview from "@/pages/dashboard/Overview";
 import Organizations from "@/pages/dashboard/Organizations";
 import Series from "@/pages/dashboard/Series";
@@ -36,6 +36,12 @@ import Corrections from "@/pages/dashboard/Corrections";
 import ApiRewards from "@/pages/dashboard/ApiRewards";
 import Boundary from "@/pages/dashboard/Boundary";
 
+import InvestingWorkspace from "@/pages/dashboard/InvestingWorkspace";
+import { usePaperBook } from "@/hooks/usePaperBook";
+import { INVESTING_VIEWS } from "@/lib/quant";
+import LegacyAnalytics from "@/pages/dashboard/LegacyAnalytics";
+import { ChartCandlestick, ChartNoAxesCombined, Orbit, Wallet, Scale, History } from "lucide-react";
+
 interface Category {
   id: string;
   label: string;
@@ -43,6 +49,13 @@ interface Category {
 }
 
 const CATEGORIES: Category[] = [
+  { id: "portfolio", label: "Portfolio", icon: LayoutDashboard },
+  { id: "markets", label: "Markets", icon: ChartNoAxesCombined },
+  { id: "trading", label: "Trading", icon: ChartCandlestick },
+  { id: "risk", label: "Risk", icon: Scale },
+  { id: "quant", label: "Quant Lab", icon: Orbit },
+  { id: "funding", label: "Funding", icon: Wallet },
+  { id: "ledger", label: "Trading activity", icon: History },
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "organizations", label: "Organizations", icon: Building2 },
   { id: "series", label: "RecordSeries", icon: FileStack },
@@ -62,15 +75,17 @@ const CATEGORIES: Category[] = [
 const VALID_IDS = new Set(CATEGORIES.map((c) => c.id));
 
 export default function Dashboard() {
+  const { book, setBook, loaded, storageNote } = usePaperBook();
+  const [symbol, setSymbol] = useState("NVDA");
   const [drafts, setDrafts] = useState<DraftRecord[]>([]);
   const search = useSearch({ from: "/dashboard" });
   const navigate = useNavigate({ from: "/dashboard" });
-  const raw = search.view ?? "overview";
-  const view = VALID_IDS.has(raw) ? raw : "overview";
+  const raw = search.view ?? "portfolio";
+  const view = VALID_IDS.has(raw) ? raw : "portfolio";
 
   const setView = (id: string) => {
     void navigate({
-      search: id === "overview" ? {} : { view: id },
+      search: id === "portfolio" ? {} : { view: id },
       resetScroll: false,
     });
   };
@@ -88,6 +103,19 @@ export default function Dashboard() {
   };
 
   const renderView = () => {
+    if (INVESTING_VIEWS.includes(view))
+      return (
+        <InvestingWorkspace
+          view={view}
+          onNavigate={setView}
+          symbol={symbol}
+          setSymbol={setSymbol}
+          book={book}
+          setBook={setBook}
+          ready={loaded}
+          storageNote={storageNote}
+        />
+      );
     switch (view) {
       case "organizations":
         return <Organizations />;
@@ -127,18 +155,19 @@ export default function Dashboard() {
         <div className="mx-auto flex w-full max-w-[1680px] flex-wrap items-center justify-between gap-x-6 gap-y-2 px-6 py-3 md:px-10 xl:px-14">
           <div className="flex items-center gap-3">
             <span className="relative flex h-2 w-2" aria-hidden>
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
             </span>
             <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink">
-              ARCWELL control room <span className="text-faint">/ sample registry telemetry</span>
+              ARCWELL control room <span className="text-faint">/ research workspace</span>
             </p>
           </div>
           <div className="flex items-center gap-4">
             <p className="hidden font-mono text-[11px] uppercase tracking-[0.14em] text-faint sm:block">
-              {NETWORK_STATUS.network} · slot {NETWORK_STATUS.currentSlot.toLocaleString("en-US")}
+              Arc Testnet · read-only tools
             </p>
-            <StatusPill value={NETWORK_STATUS.state} />
+            <span className="rounded-full border border-hairline px-3 py-1 font-mono text-[10px] text-ink-muted">
+              Sample data
+            </span>
           </div>
         </div>
       </div>
@@ -190,9 +219,9 @@ export default function Dashboard() {
 
             <div className="mt-auto px-3 pt-8">
               <p className="font-mono text-[10px] uppercase leading-relaxed tracking-[0.12em] text-faint">
-                Proof-only infrastructure.
+                Paper investing & research.
                 <br />
-                Records what external systems report.
+                Arc tools and evidence registry.
               </p>
             </div>
           </nav>
@@ -229,11 +258,13 @@ export default function Dashboard() {
         </div>
 
         {/* Content */}
-        <main className="min-w-0 flex-1 px-6 py-8 md:px-10 lg:py-10 xl:px-14">
+        <section
+          aria-label="Dashboard workspace"
+          className="min-w-0 flex-1 px-6 py-8 md:px-10 lg:py-10 xl:px-14"
+        >
           <p className="mb-6 rounded-xl border border-hairline bg-surface/50 px-5 py-4 text-xs leading-relaxed text-ink-muted">
-            Arc tools use the working testnet read functions and local draft validation. Registry
-            records, organizations, evidence, verifier scores, API keys, rewards, and the status
-            strip remain sample data.
+            Prices, holdings and registry records are samples. Paper orders change only this
+            browser’s account. Arc wallet and network checks read public Testnet data.
           </p>
           <motion.div
             key={view}
@@ -241,14 +272,19 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, ease: EASE }}
           >
+            {!INVESTING_VIEWS.includes(view) ? (
+              <LegacyAnalytics view={view} drafts={drafts} />
+            ) : null}
             {renderView()}
           </motion.div>
 
           {/* Disclaimer strip */}
-          <div className="mt-12 rounded-2xl border border-hairline bg-surface/50 px-5 py-4">
-            <p className="text-[11px] leading-relaxed text-faint">{DISCLAIMER}</p>
-          </div>
-        </main>
+          {!INVESTING_VIEWS.includes(view) ? (
+            <div className="mt-12 rounded-2xl border border-hairline bg-surface/50 px-5 py-4">
+              <p className="text-[11px] leading-relaxed text-faint">{DISCLAIMER}</p>
+            </div>
+          ) : null}
+        </section>
       </div>
     </div>
   );

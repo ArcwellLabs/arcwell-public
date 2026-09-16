@@ -7,16 +7,16 @@ export const Route = createFileRoute("/dashboard")({
   }),
   head: () => ({
     meta: [
-      { title: "ARCWELL Console — Records, Evidence & Verifiers" },
+      { title: "ARCWELL — Investing & Research" },
       {
         name: "description",
         content:
-          "Explore the ARCWELL console: record series, transactions, evidence, verifiers, corrections and API rewards.",
+          "Explore paper investing, interactive market charts, risk models, Arc Testnet tools and the evidence registry.",
       },
-      { property: "og:title", content: "ARCWELL Console — Records, Evidence & Verifiers" },
+      { property: "og:title", content: "ARCWELL — Investing & Research" },
       {
         property: "og:description",
-        content: "Record series, transactions, evidence, verifiers and corrections in one console.",
+        content: "Portfolio research, paper trading, quantitative models and Arc Testnet tools.",
       },
     ],
   }),
