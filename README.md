@@ -11,8 +11,8 @@
 
 # ARCWELL
 
-A research workspace for paper investing, quantitative portfolio exploration, and
-read-only Arc Testnet tools. Built around a simple ambition: make asset records,
+A research workspace for paper investing and portfolio exploration, with
+additional quantitative and Arc Testnet modules retained in the source. Built around a simple ambition: make asset records,
 operating boundaries, and settlement evidence easier to inspect.
 
 **This release is a prototype.** Prices, portfolios, records, verifier scores, and
@@ -26,18 +26,20 @@ It is independent software with no implied affiliation or endorsement by Arc or 
 
 ## Explore the workspace
 
-| Workspace           | What you can do                                                                        |
-| ------------------- | -------------------------------------------------------------------------------------- |
-| Portfolio & Markets | Explore illustrative stocks and funds, allocations, and synthetic comparisons.         |
-| Trading & Activity  | Place local paper orders and review browser-persisted simulated activity.              |
-| Risk & Quant Lab    | Explore factor clouds, option pricing surfaces, allocation samples, and pair analysis. |
-| Funding             | Inspect the paper-account model and its limits. No real deposits or withdrawals.       |
-| Arc Testnet tools   | Inspect public USDC balances, transaction receipts, and RPC health on demand.          |
-| Evidence registry   | Explore sample records, provenance, corrections, and verifier interfaces.              |
+| Workspace | What you can do                                             |
+| --------- | ----------------------------------------------------------- |
+| Portfolio | Inspect simulated holdings, balances, and allocations.      |
+| Markets   | Explore illustrative stocks and funds.                      |
+| Trade     | Place browser-local paper orders using simulated funds.     |
+| Activity  | Review simulated orders and export activity.                |
+| Settings  | Inspect the local paper-account settings and data controls. |
 
-The application makes live RPC requests only when you activate a read tool.
-Payment planning produces local drafts; it does not broadcast transactions.
+The current beta exposes these five views. Advanced quantitative models, funding,
+evidence-registry interfaces, and Arc Testnet panels remain in the codebase behind
+release flags. Hidden dashboard deep links return to the supported beta views.
+
 Paper-account data stays in the browser and is not synchronized across devices.
+The beta does not move real funds, broadcast transactions, or execute brokerage orders.
 
 ## Run locally
 
