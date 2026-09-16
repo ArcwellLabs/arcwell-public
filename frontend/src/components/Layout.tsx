@@ -32,6 +32,8 @@ export default function Layout() {
     startAnim(() => setAnimKey(location.pathname));
   }, [location.pathname]);
 
+  if (dashboard) return <Outlet />;
+
   return (
     <div className="min-h-[100dvh] bg-bg text-ink">
       <Preloader />

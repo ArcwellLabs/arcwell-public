@@ -133,8 +133,8 @@ function NetworkWorkspace({ network }: { network: ArcNetwork }) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-3">
+    <div className="aw-network-grid">
+      <div className="aw-network-summary">
         {[
           {
             label: "NETWORK",
@@ -161,7 +161,8 @@ function NetworkWorkspace({ network }: { network: ArcNetwork }) {
         ))}
       </div>
       <ChartPanel
-        title="Your Arc wallet"
+        className="aw-network-wallet"
+        title="Your wallet"
         meta={
           network.chainId === ARC.chainId
             ? "Testnet funds have no monetary value"
@@ -171,7 +172,6 @@ function NetworkWorkspace({ network }: { network: ArcNetwork }) {
         <div className="q-body space-y-4">
           <p className="q-description">
             Connect your preferred wallet or inspect a public address. This view reads Arc directly.
-            Your paper portfolio stays separate.
           </p>
           <div className="q-toolbar">
             <button
@@ -279,7 +279,11 @@ function NetworkWorkspace({ network }: { network: ArcNetwork }) {
           </p>
         </div>
       </ChartPanel>
-      <ChartPanel title="Estimate a USDC network fee" meta="Read-only · no signature or transfer">
+      <ChartPanel
+        className="aw-network-fee"
+        title="Estimate a network fee"
+        meta="Read-only · no signature or transfer"
+      >
         <form
           className="q-body space-y-4"
           onSubmit={(event) => {
@@ -366,7 +370,11 @@ function NetworkWorkspace({ network }: { network: ArcNetwork }) {
           ) : null}
         </form>
       </ChartPanel>
-      <ChartPanel title="Transaction receipt" meta="Verify a transaction on the selected network">
+      <ChartPanel
+        className="aw-network-receipt"
+        title="Inspect a transaction"
+        meta="Verify a transaction on the selected network"
+      >
         <form onSubmit={inspectReceipt} className="q-body space-y-4">
           <label className="block text-sm text-ink" htmlFor="arc-inspect-hash">
             Transaction hash
@@ -417,7 +425,11 @@ function NetworkWorkspace({ network }: { network: ArcNetwork }) {
           ) : null}
         </form>
       </ChartPanel>
-      <ChartPanel title="Use your wallet to trade" meta="Tokenized stocks & ETFs">
+      <ChartPanel
+        className="aw-network-trade"
+        title="Use your wallet to trade"
+        meta="Tokenized stocks & ETFs"
+      >
         <div className="q-body space-y-4">
           <p className="q-description">
             Browse issuer-listed stocks and ETFs in Trade. Pay with Arc USDC where a purchase route

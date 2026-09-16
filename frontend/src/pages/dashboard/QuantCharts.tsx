@@ -108,7 +108,7 @@ export function TimeChart({
       className="q-chart"
       style={{ height }}
       role="img"
-      aria-label={`${keys.join(" and ")} over ${data.length} sample observations`}
+      aria-label={`${keys.join(" and ")} over ${data.length} observations`}
     >
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 15, right: 18, bottom: 5, left: 5 }}>
@@ -153,7 +153,7 @@ export function TimeChart({
               type="monotone"
               dataKey={key}
               name={key}
-              stroke={["#ededea", "#8198b0", "#a6a6af"][i % 3]}
+              stroke={["#ededea", "#a0a0a8", "#a6a6af"][i % 3]}
               strokeWidth={i ? 1.3 : 1.8}
               fill={i ? "transparent" : `url(#q-${id})`}
               strokeDasharray={i ? "4 4" : undefined}
@@ -237,7 +237,7 @@ export function CandleChart({ candles, symbol }: { candles: Candle[]; symbol: st
         viewBox={`0 0 ${width} 335`}
         className="q-candles"
         role="img"
-        aria-label={`${symbol} synthetic OHLC candles and volume. Move across the chart to inspect.`}
+        aria-label={`${symbol} OHLC candles and volume. Move across the chart to inspect.`}
         onPointerMove={(e) => {
           const rect = e.currentTarget.getBoundingClientRect();
           setHover(
@@ -286,7 +286,7 @@ export function CandleChart({ candles, symbol }: { candles: Candle[]; symbol: st
           <polyline
             points={average.flatMap((v, i) => (v === null ? [] : [`${x(i)},${y(v)}`])).join(" ")}
             fill="none"
-            stroke="#8298b0"
+            stroke="#a3a3ad"
             strokeWidth="1.5"
           />
         ) : null}
@@ -782,7 +782,7 @@ export function MultiLineChart({
               key={key}
               dataKey={key}
               dot={false}
-              stroke={["#ededea", "#8198b0"][i % 2]}
+              stroke={["#ededea", "#a0a0a8"][i % 2]}
               strokeWidth={1.4}
               isAnimationActive={false}
             />

@@ -392,135 +392,140 @@ export default function TokenizedStocks() {
       </header>
       <div className="st-grid">
         <div className="st-market">
-          <div className="st-asset-feature" key={symbol}>
-            <div className="st-feature-top">
-              <span className="st-token-badge">ONDO STOCKS</span>
-              <span>ETHEREUM ↗</span>
+          <div className="st-catalog">
+            <div className="st-list-heading">
+              <h3>Stocks & ETFs</h3>
+              <span>{STOCK_ASSETS.length} ASSETS</span>
             </div>
-            <div className="st-feature-identity">
-              <StockLogo asset={asset} />
-              <span>{asset.name}</span>
+            <label className="st-catalog-search">
+              <Search size={16} aria-hidden="true" />
+              <input
+                type="search"
+                aria-label="Search stocks and ETFs"
+                placeholder="Search company, ticker or contract"
+                value={query}
+                onChange={(event) => {
+                  setQuery(event.target.value);
+                  setVisibleCount(24);
+                }}
+              />
+            </label>
+            <div className="st-catalog-summary" role="status">
+              {query.trim()
+                ? `${filteredAssets.length} ${filteredAssets.length === 1 ? "match" : "matches"}`
+                : `${STOCK_ASSETS.length} issuer-listed assets`}
+              <a
+                href="https://github.com/ondoprotocol/ondo-global-markets-token-list"
+                target="_blank"
+                rel="noreferrer"
+                title={`Issuer list published ${STOCK_CATALOG_METADATA.publishedAt}`}
+              >
+                Ondo catalog <ArrowUpRight size={12} />
+              </a>
             </div>
-            <div className="st-ticker" aria-label={asset.symbol}>
-              {symbol.replace(/on$/, "")}
-              <span>on</span>
-            </div>
-            <div className="st-feature-bottom">
-              <span>Issuer-listed · Ethereum</span>
-              <span>
-                {STOCK_ASSETS.findIndex((item) => item.symbol === symbol) + 1} /{" "}
-                {STOCK_ASSETS.length}
-              </span>
-            </div>
-            <div className="st-dot-field" aria-hidden="true">
-              {Array.from({ length: 96 }, (_, i) => (
-                <i key={i} style={{ opacity: 0.1 + ((i * 7) % 13) / 18 }} />
+            <div className="st-asset-list" role="group" aria-label="Choose a tokenized stock">
+              {filteredAssets.slice(0, visibleCount).map((item, index) => (
+                <button
+                  key={item.symbol}
+                  type="button"
+                  aria-pressed={symbol === item.symbol}
+                  disabled={locked}
+                  onClick={() => {
+                    invalidate();
+                    setSymbol(item.symbol);
+                    setAmount("");
+                  }}
+                >
+                  <span className="st-row-number">{String(index + 1).padStart(2, "0")}</span>
+                  <StockLogo asset={item} />
+                  <span className="st-row-name">
+                    <strong>{item.name}</strong>
+                    <small>{item.symbol}</small>
+                  </span>
+
+                  <ArrowUpRight size={17} />
+                </button>
               ))}
             </div>
-          </div>
-          <div className="st-list-heading">
-            <h3>Stocks & ETFs</h3>
-            <span>{STOCK_ASSETS.length} ASSETS</span>
-          </div>
-          <label className="st-catalog-search">
-            <Search size={16} aria-hidden="true" />
-            <input
-              type="search"
-              aria-label="Search stocks and ETFs"
-              placeholder="Search company, ticker or contract"
-              value={query}
-              onChange={(event) => {
-                setQuery(event.target.value);
-                setVisibleCount(24);
-              }}
-            />
-          </label>
-          <div className="st-catalog-summary" role="status">
-            {query.trim()
-              ? `${filteredAssets.length} ${filteredAssets.length === 1 ? "match" : "matches"}`
-              : `${STOCK_ASSETS.length} issuer-listed assets`}
-            <a
-              href="https://github.com/ondoprotocol/ondo-global-markets-token-list"
-              target="_blank"
-              rel="noreferrer"
-              title={`Issuer list published ${STOCK_CATALOG_METADATA.publishedAt}`}
-            >
-              Ondo catalog <ArrowUpRight size={12} />
-            </a>
-          </div>
-          <div className="st-asset-list" role="group" aria-label="Choose a tokenized stock">
-            {filteredAssets.slice(0, visibleCount).map((item, index) => (
+            {!filteredAssets.length && (
+              <p className="st-catalog-empty">No issuer-listed assets match this search.</p>
+            )}
+            {visibleCount < filteredAssets.length && (
               <button
-                key={item.symbol}
-                type="button"
-                aria-pressed={symbol === item.symbol}
-                disabled={locked}
-                onClick={() => {
-                  invalidate();
-                  setSymbol(item.symbol);
-                  setAmount("");
-                }}
+                className="st-catalog-more"
+                onClick={() => setVisibleCount((count) => count + 24)}
               >
-                <span className="st-row-number">{String(index + 1).padStart(2, "0")}</span>
-                <StockLogo asset={item} />
-                <span className="st-row-name">
-                  <strong>{item.name}</strong>
-                  <small>{item.symbol}</small>
-                </span>
-
-                <ArrowUpRight size={17} />
+                Show more · {Math.min(visibleCount, filteredAssets.length)} of{" "}
+                {filteredAssets.length}
               </button>
-            ))}
-          </div>
-          {!filteredAssets.length && (
-            <p className="st-catalog-empty">No issuer-listed assets match this search.</p>
-          )}
-          {visibleCount < filteredAssets.length && (
-            <button
-              className="st-catalog-more"
-              onClick={() => setVisibleCount((count) => count + 24)}
-            >
-              Show more · {Math.min(visibleCount, filteredAssets.length)} of {filteredAssets.length}
-            </button>
-          )}
-          <p className="st-catalog-note">
-            Catalog coverage is not a live quote. Available routes and minimum amounts are checked
-            when you request one.
-          </p>
-          <aside className="st-context">
-            <div>
-              <ShieldCheck size={18} />
-              <h3>Your keys. Your position.</h3>
-            </div>
-            <p>
-              Tokenized exposure issued by Ondo. Review the quote here, then authorize with your
-              wallet. Token rights differ from directly owning shares.
+            )}
+            <p className="st-catalog-note">
+              Catalog coverage is not a live quote. Available routes and minimum amounts are checked
+              when you request one.
             </p>
-            <div className="st-source-links">
-              <a
-                href={`https://app.ondo.finance/assets/${symbol.toLowerCase()}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Issuer details <ArrowUpRight size={13} />
-              </a>
-              <a
-                href={`https://etherscan.io/token/${asset.address}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Token contract <ArrowUpRight size={13} />
-              </a>
+          </div>
+          <div className="st-detail">
+            <div className="st-asset-feature" key={symbol}>
+              <div className="st-feature-top">
+                <span className="st-token-badge">ONDO STOCKS</span>
+                <span>ETHEREUM ↗</span>
+              </div>
+              <div className="st-feature-identity">
+                <StockLogo asset={asset} />
+                <span>{asset.name}</span>
+              </div>
+              <div className="st-ticker" aria-label={asset.symbol}>
+                {symbol.replace(/on$/, "")}
+                <span>on</span>
+              </div>
+              <div className="st-feature-bottom">
+                <span>Issuer-listed · Ethereum</span>
+                <span>
+                  {STOCK_ASSETS.findIndex((item) => item.symbol === symbol) + 1} /{" "}
+                  {STOCK_ASSETS.length}
+                </span>
+              </div>
+              <div className="st-dot-field" aria-hidden="true">
+                {Array.from({ length: 96 }, (_, i) => (
+                  <i key={i} style={{ opacity: 0.1 + ((i * 7) % 13) / 18 }} />
+                ))}
+              </div>
             </div>
-          </aside>
+            <aside className="st-context">
+              <div>
+                <ShieldCheck size={18} />
+                <h3>Your keys. Your position.</h3>
+              </div>
+              <p>
+                Tokenized exposure issued by Ondo. Review the quote here, then authorize with your
+                wallet. Token rights differ from directly owning shares.
+              </p>
+              <div className="st-source-links">
+                <a
+                  href={`https://app.ondo.finance/assets/${symbol.toLowerCase()}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Issuer details <ArrowUpRight size={13} />
+                </a>
+                <a
+                  href={`https://etherscan.io/token/${asset.address}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Token contract <ArrowUpRight size={13} />
+                </a>
+              </div>
+            </aside>
+          </div>
         </div>
         <div className="st-trade-column">
           <div className="st-ticket">
             <div className="st-ticket-head">
-              <span>PLACE A TRADE</span>
+              <span>ORDER</span>
               <span className="st-network-dot">{arcCheckout ? "Pay with Arc" : "Ethereum"}</span>
             </div>
-            <h3 className="st-ticket-title">Make your move.</h3>
+            <h3 className="st-ticket-title">Prepare an order</h3>
             <StockTransferRecovery
               disabled={Boolean(busy || pending || approvalHash)}
               onLockChange={setFundingLocked}

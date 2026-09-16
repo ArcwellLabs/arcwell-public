@@ -12,12 +12,10 @@ export function usePaperBook() {
         const parsed: unknown = JSON.parse(raw);
         if (validBook(parsed)) setBook(parsed);
         else
-          setStorageNote(
-            "Stored paper account could not be read. A fresh sample account is shown.",
-          );
+          setStorageNote("Saved account could not be read. Default starting balances are shown.");
       }
     } catch {
-      setStorageNote("Browser storage is unavailable. Paper trades last for this session.");
+      setStorageNote("Browser storage is unavailable. Account changes last for this session.");
     }
     setLoaded(true);
   }, []);
@@ -26,7 +24,7 @@ export function usePaperBook() {
     try {
       localStorage.setItem("arcwell-paper-v1", JSON.stringify(book));
     } catch {
-      setStorageNote("Paper account changes could not be saved in this browser.");
+      setStorageNote("Account changes could not be saved in this browser.");
     }
   }, [book, loaded]);
   return { book, setBook, loaded, storageNote };

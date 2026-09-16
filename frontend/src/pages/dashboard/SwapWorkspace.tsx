@@ -50,10 +50,8 @@ export default function SwapWorkspace({ initialAddress }: { initialAddress?: str
     <section className="sw-workspace" aria-labelledby="swap-title">
       <header className="sw-heading">
         <p className="q-eyebrow">ARC MAINNET · 5042 · EXTERNAL EXECUTION</p>
-        <h1 id="swap-title">From research to a swap.</h1>
-        <p>
-          Choose your pair here. Get the current quote and authorize with your wallet on Uniswap.
-        </p>
+        <h1 id="swap-title">Swap</h1>
+        <p>Move between assets on Arc. Review your pair, then authorize on Uniswap.</p>
       </header>
       <ol className="sw-steps" aria-label="Swap steps">
         <li>
@@ -69,7 +67,7 @@ export default function SwapWorkspace({ initialAddress }: { initialAddress?: str
       <div className="sw-grid">
         <div className="sw-card">
           <div className="sw-card-title">
-            <h2>Prepare your swap</h2>
+            <h2>Prepare a swap</h2>
             <span>ARC MAINNET</span>
           </div>
           <form
@@ -249,15 +247,15 @@ export default function SwapWorkspace({ initialAddress }: { initialAddress?: str
             <h2>Follow its receipt.</h2>
             <p>
               Copy the transaction hash from Uniswap and inspect inclusion, finality and gas in the
-              Arc workspace. External swaps are separate from your paper account.
+              Arc workspace.
             </p>
             <Link className="sw-text-link" to="/dashboard" search={{ view: "arc" }}>
               Open receipt verification <ArrowUpRight size={14} />
             </Link>
           </div>
           <p className="sw-note">
-            Stock orders in Trade remain simulations. This integration opens token swaps on Arc
-            Mainnet; it does not connect a stock issuer or brokerage.
+            Token swaps are authorized in Uniswap. Check the selected network and contracts before
+            proceeding.
           </p>
         </aside>
       </div>

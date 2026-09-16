@@ -35,7 +35,7 @@ export default function ArcStockCheckout({
       integrator: "arcwell",
       providers,
       variant: "compact",
-      appearance: "light",
+      appearance: "dark",
       fromChain: 5042,
       fromToken: ARC_USDC,
       toChain: 1,
@@ -83,12 +83,12 @@ export default function ArcStockCheckout({
         shape: { borderRadius: 10 },
         typography: { fontFamily: "inherit" },
         colorSchemes: {
-          light: {
+          dark: {
             palette: {
-              primary: { main: "#293c2b" },
-              secondary: { main: "#566447" },
-              background: { default: "#eeede8", paper: "#f7f7f2" },
-              text: { primary: "#191a18", secondary: "#676960" },
+              primary: { main: "#e8e8e4" },
+              secondary: { main: "#a0a0a8" },
+              background: { default: "#0a0a0b", paper: "#111114" },
+              text: { primary: "#ededea", secondary: "#8b8b93" },
             },
           },
         },
