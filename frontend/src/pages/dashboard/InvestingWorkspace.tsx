@@ -39,6 +39,7 @@ import { ArcBalance, ArcNetworkCheck } from "./ArcTools";
 import { chartShade, pct, usd } from "@/lib/quant-format";
 import { dashboardViewNumber, isDashboardViewEnabled } from "@/lib/dashboard-release";
 import "./investing.css";
+import AssetResearch from "./AssetResearch";
 
 type Props = {
   view: string;
@@ -52,7 +53,7 @@ type Props = {
 };
 const TITLES: Record<string, [string, string]> = {
   portfolio: ["Portfolio", "Holdings, allocations and historical scenarios."],
-  markets: ["Markets", "Explore the sample asset universe and compare market behavior."],
+  markets: ["Markets", "Discover Arc assets and inspect sourced market data."],
   trading: ["Trade", "Price analysis, execution estimates and paper orders."],
   risk: ["Risk", "Concentration, correlations and portfolio stress tests."],
   quant: ["Quant Lab", "Explore factors, model surfaces and allocation trade-offs."],
@@ -82,7 +83,9 @@ export default function InvestingWorkspace(props: Props) {
           <p className="q-description">{description}</p>
         </div>
         <div className="q-header-actions">
-          <span className="q-badge">Synthetic market data</span>
+          <span className="q-badge">
+            {view === "markets" ? "Connected market sources" : "Synthetic market data"}
+          </span>
           <button className="q-button" onClick={csv}>
             <Download size={13} /> Export positions
           </button>
@@ -96,7 +99,7 @@ export default function InvestingWorkspace(props: Props) {
       {view === "portfolio" ? (
         <Portfolio {...props} />
       ) : view === "markets" ? (
-        <Markets {...props} />
+        <AssetResearch />
       ) : view === "trading" ? (
         <Trading {...props} />
       ) : view === "risk" ? (
@@ -109,7 +112,11 @@ export default function InvestingWorkspace(props: Props) {
         <Ledger {...props} />
       )}
       <footer className="q-workspace-footer">
-        <span>Research workspace / illustrative instruments</span>
+        <span>
+          {view === "markets"
+            ? "Arc asset research / source-linked observations"
+            : "Research workspace / illustrative instruments"}
+        </span>
         <button
           onClick={() => onNavigate(isDashboardViewEnabled("network") ? "network" : "settings")}
         >
@@ -117,7 +124,9 @@ export default function InvestingWorkspace(props: Props) {
           <ArrowUpRight size={12} />
         </button>
         <span>
-          Prices and charts are synthetic. No brokerage or execution provider is connected.
+          {view === "markets"
+            ? "Coverage varies by provider. Prices are observations, not executable quotes."
+            : "Prices and charts are synthetic. No brokerage or execution provider is connected."}
         </span>
       </footer>
     </div>

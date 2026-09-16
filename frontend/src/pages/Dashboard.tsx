@@ -99,7 +99,11 @@ export default function Dashboard() {
 
   const saveDraft = (draft: PaymentDraft) => {
     setDrafts((previous) => [
-      { ...draft, id: crypto.randomUUID(), createdAt: new Date().toISOString() },
+      {
+        ...draft,
+        id: crypto.randomUUID(),
+        createdAt: new Date().toISOString(),
+      },
       ...previous,
     ]);
     setView("activity");
@@ -170,10 +174,12 @@ export default function Dashboard() {
           </div>
           <div className="flex items-center gap-4">
             <p className="hidden font-mono text-[11px] uppercase tracking-[0.14em] text-faint sm:block">
-              Practice account · no real execution
+              {view === "markets"
+                ? "Asset discovery · no real execution"
+                : "Practice account · no real execution"}
             </p>
             <span className="rounded-full border border-hairline px-3 py-1 font-mono text-[10px] text-ink-muted">
-              Sample data
+              {view === "markets" ? "Sourced asset data" : "Sample data"}
             </span>
           </div>
         </div>
@@ -270,8 +276,9 @@ export default function Dashboard() {
           className="min-w-0 flex-1 px-6 py-8 md:px-10 lg:py-10 xl:px-14"
         >
           <p className="mb-6 rounded-xl border border-hairline bg-surface/50 px-5 py-4 text-xs leading-relaxed text-ink-muted">
-            Prices and starting holdings are samples. Paper orders update only this browser’s
-            account. No real assets or funds move.
+            {view === "markets"
+              ? "Search Arc assets by name, symbol, or contract address. Check each result’s network, source, and observation time. Trading remains a separate paper simulation."
+              : "Prices and starting holdings are samples. Paper orders update only this browser’s account. No real assets or funds move."}
           </p>
           <motion.div
             key={view}
