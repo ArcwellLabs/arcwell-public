@@ -41,7 +41,9 @@ function Sources({ sources }: { sources: SourceStatus[] }) {
               {s.name} <ArrowUpRight size={11} />
             </a>
             <span>
-              {s.status === "ok" ? `Retrieved ${time(s.observedAt)}` : "Temporarily unavailable"}
+              {s.status === "ok"
+                ? `Retrieved ${time(s.observedAt)}`
+                : `Unavailable · ${s.reason?.replaceAll("-", " ") || "provider failure"}${s.httpStatus ? ` (HTTP ${s.httpStatus})` : ""}${s.retryAt ? ` · retry after ${time(s.retryAt)}` : ""}`}
             </span>
           </li>
         ))}
@@ -344,6 +346,17 @@ export default function AssetResearch() {
                   ? `${detail.history.length} available daily observations · USD · GeckoTerminal · current day may be incomplete`
                   : "Historical data unavailable for this asset."}
               </p>
+              {detail.historyObservedAt && (
+                <p className="ar-muted">
+                  {detail.historyStatus === "stale"
+                    ? "Last known history · refresh unavailable"
+                    : detail.historyStatus === "cached"
+                      ? "Cached history"
+                      : "History retrieved"}
+                  {" · "}
+                  {new Date(detail.historyObservedAt).toLocaleString()}
+                </p>
+              )}
               {detail.history.length > 1 && (
                 <div
                   style={{ height: 260, width: "100%" }}

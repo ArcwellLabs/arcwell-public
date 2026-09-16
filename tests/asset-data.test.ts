@@ -217,3 +217,113 @@ test('API coalesces concurrent requests, caches, and limits unique misses', asyn
   clock = 61000;
   assert.equal((await handler(req())).status, 200);
 });
+
+test('verified history survives transient outages with original time, expires, and never crosses networks', async () => {
+  let clock = Date.now();
+  const initial = clock;
+  let outage = false;
+  let historyReads = 0;
+  const service = createAssetService(
+    async (input, init) => {
+      const url = String(input);
+      if (init?.body) {
+        const q = JSON.parse(String(init.body));
+        return answer({
+          jsonrpc: '2.0',
+          id: 1,
+          result:
+            q.method === 'eth_chainId'
+              ? url.includes('testnet')
+                ? '0x4cef52'
+                : '0x13b2'
+              : q.method === 'eth_blockNumber'
+                ? '0x10'
+                : q.method === 'eth_getCode'
+                  ? '0x6000'
+                  : q.params[0]?.data === '0x313ce567'
+                    ? '0x06'
+                    : q.params[0]?.data === '0x18160ddd'
+                      ? '0x01'
+                      : abi('Example'),
+        });
+      }
+      if (url.includes('/ohlcv/')) {
+        historyReads++;
+        if (outage) return answer({}, 503);
+        return answer({
+          meta: { base: { address: A } },
+          data: {
+            attributes: {
+              ohlcv_list: [
+                [1700000000, 2, 3, 1, 2.5, 10],
+                [1700086400, 2.5, 3, 2, 2.8, 20],
+              ],
+            },
+          },
+        });
+      }
+      if (url.includes('/pools'))
+        return answer({
+          data: [
+            {
+              id: 'arc_' + P,
+              attributes: {
+                address: P,
+                base_token_price_usd: '2.8',
+                reserve_in_usd: '100000',
+              },
+              relationships: {
+                base_token: { data: { id: 'arc_' + A } },
+                quote_token: { data: { id: 'arc_' + B } },
+              },
+            },
+          ],
+        });
+      return answer({}, 404);
+    },
+    () => clock,
+  );
+  const first = await service.inspect('mainnet', A);
+  assert.equal(first.historyStatus, 'live');
+  assert.equal(first.history.length, 2);
+  clock += 61_000;
+  outage = true;
+  const cached = await service.inspect('mainnet', A);
+  assert.equal(cached.historyStatus, 'cached');
+  assert.equal(historyReads, 1);
+  clock += 300_000;
+  const stale = await service.inspect('mainnet', A);
+  assert.equal(stale.historyStatus, 'stale');
+  assert.equal(stale.historyObservedAt, new Date(initial).toISOString());
+  assert.equal(stale.history.length, 2);
+  assert.equal(stale.sources.find((s) => s.name.includes('history'))?.reason, 'upstream-error');
+  assert.equal((await service.inspect('testnet', A)).history.length, 0);
+  clock = initial + 3_600_001;
+  const expired = await service.inspect('mainnet', A);
+  assert.equal(expired.historyStatus, 'unavailable');
+  assert.equal(expired.history.length, 0);
+});
+
+test('provider rate limits honor bounded retry time and do not expose upstream response bodies', async () => {
+  let clock = Date.now();
+  let requests = 0;
+  const service = createAssetService(
+    async () => {
+      requests++;
+      return new Response('private upstream diagnostics', {
+        status: 429,
+        headers: { 'Retry-After': '120' },
+      });
+    },
+    () => clock,
+  );
+  const first = await service.search('mainnet', 'asset');
+  const count = requests;
+  const second = await service.search('mainnet', 'another');
+  assert.equal(requests, count);
+  assert.ok(second.sources.every((s) => s.reason === 'rate-limited' && s.retryAt));
+  assert.ok(!JSON.stringify(first).includes('private upstream'));
+  clock += 121_000;
+  await service.search('mainnet', 'third');
+  assert.ok(requests > count);
+});

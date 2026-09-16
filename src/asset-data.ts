@@ -100,6 +100,16 @@ export type SourceStatus = {
   url: string;
   status: 'ok' | 'unavailable';
   observedAt: string;
+  reason?:
+    | 'rate-limited'
+    | 'budget-limited'
+    | 'timeout'
+    | 'not-found'
+    | 'upstream-error'
+    | 'invalid-data'
+    | 'network-error';
+  retryAt?: string;
+  httpStatus?: number;
 };
 export type AssetHit = {
   address: string;
@@ -156,19 +166,45 @@ export type AssetDetail = {
   }[];
   historyPool: string | null;
   historyUrl: string | null;
+  historyObservedAt: string | null;
+  historyStatus: 'live' | 'cached' | 'stale' | 'unavailable';
 };
 type Fetcher = typeof fetch;
-export function createAssetService(fetcher: Fetcher = fetch) {
+class ProviderFailure extends Error {
+  reason: NonNullable<SourceStatus['reason']>;
+  retryAt?: string;
+  httpStatus?: number;
+  constructor(reason: NonNullable<SourceStatus['reason']>, retryAt?: string, httpStatus?: number) {
+    super(reason);
+    this.reason = reason;
+    this.retryAt = retryAt;
+    this.httpStatus = httpStatus;
+  }
+}
+export function createAssetService(fetcher: Fetcher = fetch, now = Date.now) {
+  const cooldowns = new Map<string, number>();
+  const historyCache = new Map<
+    string,
+    {
+      time: number;
+      history: AssetDetail['history'];
+      pool: string;
+      url: string;
+    }
+  >();
   const budgets = new Map<string, { start: number; count: number }>();
   async function json(url: string, init?: RequestInit): Promise<ObjectValue | ObjectValue[]> {
     const host = new URL(url).hostname;
+    const retry = cooldowns.get(host) || 0;
+    if (retry > now()) throw new ProviderFailure('rate-limited', new Date(retry).toISOString());
     let budget = budgets.get(host);
-    if (!budget || Date.now() - budget.start >= 60_000) {
-      budget = { start: Date.now(), count: 0 };
+    if (!budget || now() - budget.start >= 60_000) {
+      budget = { start: now(), count: 0 };
       budgets.set(host, budget);
     }
     const limit = host === 'api.geckoterminal.com' ? 27 : host.startsWith('rpc.') ? 240 : 100;
-    if (budget.count >= limit) throw new Error('Provider request budget reached');
+    if (budget.count >= limit)
+      throw new ProviderFailure('budget-limited', new Date(budget.start + 60_000).toISOString());
     budget.count++;
     const response = await fetcher(url, {
       ...init,
@@ -176,7 +212,21 @@ export function createAssetService(fetcher: Fetcher = fetch) {
       headers: { 'User-Agent': 'ARCWELL-research', Accept: 'application/json', ...init?.headers },
       signal: AbortSignal.timeout(8000),
     });
-    if (!response.ok) throw new Error('Provider unavailable');
+    if (!response.ok) {
+      if (response.status === 429) {
+        const header = response.headers.get('Retry-After') || '';
+        const delay = /^\d+$/.test(header) ? Number(header) * 1000 : Date.parse(header) - now();
+        const until =
+          now() + Math.min(300_000, Math.max(1000, Number.isFinite(delay) ? delay : 60_000));
+        cooldowns.set(host, until);
+        throw new ProviderFailure('rate-limited', new Date(until).toISOString(), 429);
+      }
+      throw new ProviderFailure(
+        response.status === 404 ? 'not-found' : 'upstream-error',
+        undefined,
+        response.status,
+      );
+    }
     // Bound memory even when an upstream omits Content-Length.
     const reader = response.body?.getReader();
     if (!reader) throw new Error('Empty provider response');
@@ -212,10 +262,28 @@ export function createAssetService(fetcher: Fetcher = fetch) {
   ) {
     try {
       const data = await work();
-      sources.push({ name, url, status: 'ok', observedAt: new Date().toISOString() });
+      sources.push({ name, url, status: 'ok', observedAt: new Date(now()).toISOString() });
       return data;
-    } catch {
-      sources.push({ name, url, status: 'unavailable', observedAt: new Date().toISOString() });
+    } catch (error) {
+      const reason =
+        error instanceof ProviderFailure
+          ? error.reason
+          : error instanceof Error && ['TimeoutError', 'AbortError'].includes(error.name)
+            ? 'timeout'
+            : error instanceof SyntaxError
+              ? 'invalid-data'
+              : 'network-error';
+      sources.push({
+        name,
+        url,
+        status: 'unavailable',
+        observedAt: new Date(now()).toISOString(),
+        reason,
+        ...(error instanceof ProviderFailure && error.retryAt ? { retryAt: error.retryAt } : {}),
+        ...(error instanceof ProviderFailure && error.httpStatus
+          ? { httpStatus: error.httpStatus }
+          : {}),
+      });
       return null;
     }
   }
@@ -504,6 +572,8 @@ export function createAssetService(fetcher: Fetcher = fetch) {
       history: [],
       historyPool: null,
       historyUrl: null,
+      historyObservedAt: null,
+      historyStatus: 'unavailable',
     };
     if (absent)
       detail.warnings.push(
@@ -533,28 +603,64 @@ export function createAssetService(fetcher: Fetcher = fetch) {
           'Provider prices differ by more than 5%. Review the individual markets before relying on this quote.',
         );
     }
-    const historyPools = candidates.filter((p) => p.source === 'GeckoTerminal').slice(0, 3);
-    for (const [index, historyPool] of historyPools.entries()) {
-      if (absent || detail.history.length >= 2) break;
-      const url = `${GT}/networks/arc/pools/${historyPool.address}/ohlcv/day?aggregate=1&limit=30&currency=usd&token=${address}`;
-      const candles = await source(
-        `GeckoTerminal history ${index + 1}`,
-        historyPool.url,
-        sources,
-        () => json(url),
-      );
-      // The provider returns the requested token as meta.base, even when it was the pool quote token.
-      if (String(obj(obj(candles)['meta'])['base']?.address).toLowerCase() === address) {
-        const history = normalizeCandles(
-          obj(obj(obj(candles)['data'])['attributes'])['ohlcv_list'],
-        );
-        if (history.length > detail.history.length) {
-          detail.history = history;
+    const historyKey = network + ':' + address;
+    const previous = historyCache.get(historyKey);
+    if (previous && now() - previous.time >= 3_600_000) historyCache.delete(historyKey);
+    const cachedHistory = historyCache.get(historyKey);
+    const applyHistory = (
+      cached: NonNullable<typeof cachedHistory>,
+      status: 'cached' | 'stale',
+    ) => {
+      detail.history = cached.history;
+      detail.historyPool = cached.pool;
+      detail.historyUrl = cached.url;
+      detail.historyObservedAt = new Date(cached.time).toISOString();
+      detail.historyStatus = status;
+    };
+    if (!absent && cachedHistory && now() - cachedHistory.time < 300_000) {
+      applyHistory(cachedHistory, 'cached');
+    } else {
+      const historyPools = candidates.filter((p) => p.source === 'GeckoTerminal').slice(0, 3);
+      for (const [index, historyPool] of historyPools.entries()) {
+        if (absent || detail.history.length >= 2) break;
+        const url = `${GT}/networks/arc/pools/${historyPool.address}/ohlcv/day?aggregate=1&limit=30&currency=usd&token=${address}`;
+        const candles = (await source(
+          `GeckoTerminal history ${index + 1}`,
+          historyPool.url,
+          sources,
+          async () => {
+            const data = obj(await json(url));
+            if (String(obj(data['meta'])['base']?.address).toLowerCase() !== address)
+              throw new ProviderFailure('invalid-data');
+            const rows = normalizeCandles(obj(obj(data['data'])['attributes'])['ohlcv_list']);
+            if (!rows.length) throw new ProviderFailure('invalid-data');
+            return rows;
+          },
+        )) as AssetDetail['history'] | null;
+        if (candles && candles.length > detail.history.length) {
+          detail.history = candles;
           detail.historyPool = historyPool.address;
           detail.historyUrl = historyPool.url;
+          detail.historyObservedAt = new Date(now()).toISOString();
+          detail.historyStatus = 'live';
         }
       }
+      if (detail.history.length && detail.historyPool && detail.historyUrl) {
+        if (historyCache.size >= 100) historyCache.delete(historyCache.keys().next().value!);
+        historyCache.set(historyKey, {
+          time: now(),
+          history: detail.history,
+          pool: detail.historyPool,
+          url: detail.historyUrl,
+        });
+      } else if (!absent && cachedHistory) {
+        applyHistory(cachedHistory, 'stale');
+        detail.warnings.push(
+          'History refresh failed. Showing previously verified candles from the displayed retrieval time, retained for at most one hour.',
+        );
+      }
     }
+    if (absent) historyCache.delete(historyKey);
     if (!detail.history.length)
       detail.warnings.push('Historical prices are unavailable. No sample chart is substituted.');
     return detail;
