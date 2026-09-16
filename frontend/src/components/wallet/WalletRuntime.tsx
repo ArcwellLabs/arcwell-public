@@ -91,11 +91,19 @@ function WalletSession({ children }: PropsWithChildren) {
       setBusy(false);
     }
   };
-  const choose = (selected: Connector) =>
-    run(async () => {
-      await connect.mutateAsync({ connector: selected });
+  const choose = (selected: Connector) => {
+    // SDKs render their own pairing dialogs outside this portal. Release Radix's
+    // focus/pointer lock so those dialogs remain usable on desktop and mobile.
+    if (selected.type !== "injected") setOpen(false);
+    return run(async () => {
+      try {
+        await connect.mutateAsync({ connector: selected });
+      } finally {
+        setOpen(true);
+      }
       // Network switching is a separate explicit action; connection never signs a transaction.
     });
+  };
   const listed = connectors.filter((item) => {
     if (item.id === "injected")
       return (

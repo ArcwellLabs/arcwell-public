@@ -16,9 +16,11 @@ export default function WalletButton({ className = "" }: { className?: string })
     >
       <Wallet size={15} aria-hidden="true" />
       <span>
-        {wallet.address
-          ? `${wallet.address.slice(0, 6)}…${wallet.address.slice(-4)}`
-          : "Connect wallet"}
+        {wallet.busy
+          ? "Connecting…"
+          : wallet.address
+            ? `${wallet.address.slice(0, 6)}…${wallet.address.slice(-4)}`
+            : "Connect wallet"}
       </span>
     </button>
   );
