@@ -318,7 +318,7 @@
 .st-amount-box label {
   margin: 0 0 10px;
 }
-.st-ticket input {
+.st-legacy-order input {
   display: block;
   width: 100%;
   background: transparent;
@@ -330,7 +330,7 @@
   line-height: 1.2;
   min-width: 0;
 }
-.st-ticket input::placeholder {
+.st-legacy-order input::placeholder {
   color: #acafa4;
 }
 .st-receive {
@@ -642,4 +642,12 @@
   .st-ticker {
     font-size: clamp(40px, 14vw, 70px);
   }
+}
+
+.st-arc-checkout {
+  margin: 8px -12px -4px;
+  min-width: 0;
+}
+.st-arc-checkout > .st-caption {
+  padding: 0 12px;
 }

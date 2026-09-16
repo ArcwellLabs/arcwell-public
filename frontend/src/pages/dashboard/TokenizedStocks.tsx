@@ -19,6 +19,7 @@ import type { StockAsset } from "../../../../src/stock-catalog-source";
 import "@/components/asset-logo.css";
 import "./tokenized-stocks.css";
 import StockTransferRecovery from "./StockTransferRecovery";
+import StockCheckoutLoader from "./StockCheckoutLoader";
 
 type Pending = { ticket: string; orderId: string; wallet: string; deadline: number };
 const STORAGE = "arcwell.stock-order.v1";
@@ -83,6 +84,7 @@ export default function TokenizedStocks() {
   const [balance, setBalance] = useState<string | null>(null);
   const [busy, setBusy] = useState("");
   const [fundingLocked, setFundingLocked] = useState(false);
+  const [checkoutLocked, setCheckoutLocked] = useState(false);
   const [error, setError] = useState("");
   const [note, setNote] = useState("");
   const [pending, setPending] = useState<Pending | null>(null);
@@ -95,7 +97,8 @@ export default function TokenizedStocks() {
   const asset = STOCK_ASSETS.find((item) => item.symbol === symbol)!;
   const inputSymbol = side === "buy" ? "USDC" : symbol;
   const intent: StockIntent = { symbol, side, amount, wallet: address };
-  const locked = Boolean(busy || pending || approvalHash || fundingLocked);
+  const locked = Boolean(busy || pending || approvalHash || fundingLocked || checkoutLocked);
+  const arcCheckout = side === "buy" && !pending && !approvalHash;
   const expired = Boolean(quote && clock >= quote.expiresAt);
   const orderFinished = Boolean(order && terminal.includes(order.status));
 
@@ -190,7 +193,7 @@ export default function TokenizedStocks() {
   }, [pending, orderFinished]);
 
   const run = async (label: string, action: () => Promise<void>) => {
-    if (signing.current || fundingLocked) return;
+    if (signing.current || fundingLocked || checkoutLocked) return;
     signing.current = true;
     setBusy(label);
     setError("");
@@ -369,7 +372,7 @@ export default function TokenizedStocks() {
         <p>
           Tokenized stocks. Your wallet.
           <br />
-          Powered by Ondo & UniswapX.
+          Ondo stocks. Pay from Arc.
         </p>
       </header>
       <div className="st-grid">
@@ -500,7 +503,7 @@ export default function TokenizedStocks() {
           <div className="st-ticket">
             <div className="st-ticket-head">
               <span>PLACE A TRADE</span>
-              <span className="st-network-dot">Ethereum</span>
+              <span className="st-network-dot">{arcCheckout ? "Pay with Arc" : "Ethereum"}</span>
             </div>
             <h3 className="st-ticket-title">Make your move.</h3>
             <StockTransferRecovery
@@ -557,137 +560,147 @@ export default function TokenizedStocks() {
                 Sell
               </button>
             </div>
-            <div className="st-amount-box">
-              <label htmlFor="stock-amount">You pay ({inputSymbol})</label>
-              <input
-                id="stock-amount"
-                value={amount}
-                disabled={locked}
-                inputMode="decimal"
-                placeholder="0.00"
-                autoComplete="off"
-                onChange={(e) => {
-                  invalidate();
-                  setAmount(e.target.value);
-                }}
-              />
-            </div>
-            <p className="st-caption">
-              {balance !== null
-                ? `${balance} ${inputSymbol} available for Ethereum settlement`
-                : "Stock orders currently use USDC on Ethereum."}
-            </p>
-            <div className="st-receive">
-              <span>You receive</span>
-              <strong>
-                {quote
-                  ? `${quote.minimum} ${quote.outputSymbol} minimum`
-                  : side === "buy"
-                    ? symbol
-                    : "USDC"}
-              </strong>
-              <span>{quote ? "From your current quote" : "Amount shown after live quote"}</span>
-            </div>
-            <button type="button" className="st-wallet" disabled={locked} onClick={connect}>
-              <Wallet size={16} />
-              {address
-                ? `${address.slice(0, 6)}…${address.slice(-4)} · Ethereum`
-                : "Connect wallet for stock order"}
-            </button>
-            <button
-              type="button"
-              className="st-primary"
-              disabled={!ready || !address || !amount || locked}
-              onClick={requestQuote}
-            >
-              {busy || "Review quote"} <ArrowRight size={16} />
-            </button>
-            <div className="st-route">
-              <span>Your wallet</span>
-              <ArrowRight size={12} />
-              <span>UniswapX</span>
-              <ArrowRight size={12} />
-              <span>{side === "buy" ? symbol : "USDC"}</span>
-            </div>
-            {ready === false && (
-              <div className="st-notice" role="status">
-                <strong>Trading connection pending</strong>
-                <p>Browse assets now. Quotes open when the connection is activated.</p>
-              </div>
-            )}
-            {approvalHash && (
-              <div className="st-review">
-                <a
-                  href={`https://etherscan.io/tx/${approvalHash}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  View token approval ↗
-                </a>
-                <button
-                  type="button"
-                  className="st-wallet"
-                  disabled={Boolean(busy)}
-                  onClick={checkApproval}
-                >
-                  Check approval confirmation
+            {arcCheckout ? (
+              fundingLocked ? (
+                <p className="st-caption">Resolve the existing transfer above to continue.</p>
+              ) : (
+                <StockCheckoutLoader asset={asset} onLockChange={setCheckoutLocked} />
+              )
+            ) : (
+              <div className="st-legacy-order">
+                <div className="st-amount-box">
+                  <label htmlFor="stock-amount">You pay ({inputSymbol})</label>
+                  <input
+                    id="stock-amount"
+                    value={amount}
+                    disabled={locked}
+                    inputMode="decimal"
+                    placeholder="0.00"
+                    autoComplete="off"
+                    onChange={(e) => {
+                      invalidate();
+                      setAmount(e.target.value);
+                    }}
+                  />
+                </div>
+                <p className="st-caption">
+                  {balance !== null
+                    ? `${balance} ${inputSymbol} available for Ethereum settlement`
+                    : "Stock orders currently use USDC on Ethereum."}
+                </p>
+                <div className="st-receive">
+                  <span>You receive</span>
+                  <strong>
+                    {quote
+                      ? `${quote.minimum} ${quote.outputSymbol} minimum`
+                      : side === "buy"
+                        ? symbol
+                        : "USDC"}
+                  </strong>
+                  <span>{quote ? "From your current quote" : "Amount shown after live quote"}</span>
+                </div>
+                <button type="button" className="st-wallet" disabled={locked} onClick={connect}>
+                  <Wallet size={16} />
+                  {address
+                    ? `${address.slice(0, 6)}…${address.slice(-4)} · Ethereum`
+                    : "Connect wallet for stock order"}
                 </button>
-              </div>
-            )}
-            {quote && !pending && (
-              <div className="st-review" aria-label="Review tokenized stock order">
-                <p className="q-eyebrow">REVIEW YOUR ORDER</p>
-                <dl>
-                  <dt>You pay</dt>
-                  <dd>
-                    {quote.intent.amount} {inputSymbol}
-                  </dd>
-                  <dt>Minimum received</dt>
-                  <dd>
-                    {quote.minimum} {quote.outputSymbol}
-                  </dd>
-                  <dt>Network</dt>
-                  <dd>Ethereum Mainnet</dd>
-                  <dt>Price protection</dt>
-                  <dd>0.5% slippage tolerance</dd>
-                  <dt>Execution costs</dt>
-                  <dd>Included in the UniswapX quote</dd>
-                  <dt>Token approval</dt>
-                  <dd>{approved ? "Already approved" : "Wallet network fee applies"}</dd>
-                  <dt>Quote valid for</dt>
-                  <dd>
-                    {expired
-                      ? "Expired — refresh quote"
-                      : `${Math.max(0, Math.ceil((quote.expiresAt - clock) / 1000))}s`}
-                  </dd>
-                </dl>
                 <button
                   type="button"
                   className="st-primary"
-                  disabled={Boolean(busy || expired)}
-                  onClick={approved ? submit : approve}
+                  disabled={!ready || !address || !amount || locked}
+                  onClick={requestQuote}
                 >
-                  {busy ||
-                    (approved
-                      ? "Sign and submit order"
-                      : `Approve ${quote.intent.amount} ${inputSymbol}`)}
+                  {busy || "Review quote"} <ArrowRight size={16} />
                 </button>
-                <p className="st-caption">
-                  {approved
-                    ? "Your wallet signature authorizes this exact order. A submitted order still needs to fill."
-                    : "Approves only this input amount to Uniswap Permit2. Request a fresh quote after the approval confirms."}
-                </p>
+                <div className="st-route">
+                  <span>Your wallet</span>
+                  <ArrowRight size={12} />
+                  <span>UniswapX</span>
+                  <ArrowRight size={12} />
+                  <span>{side === "buy" ? symbol : "USDC"}</span>
+                </div>
+                {ready === false && (
+                  <div className="st-notice" role="status">
+                    <strong>Trading connection pending</strong>
+                    <p>Browse assets now. Quotes open when the connection is activated.</p>
+                  </div>
+                )}
+                {approvalHash && (
+                  <div className="st-review">
+                    <a
+                      href={`https://etherscan.io/tx/${approvalHash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View token approval ↗
+                    </a>
+                    <button
+                      type="button"
+                      className="st-wallet"
+                      disabled={Boolean(busy)}
+                      onClick={checkApproval}
+                    >
+                      Check approval confirmation
+                    </button>
+                  </div>
+                )}
+                {quote && !pending && (
+                  <div className="st-review" aria-label="Review tokenized stock order">
+                    <p className="q-eyebrow">REVIEW YOUR ORDER</p>
+                    <dl>
+                      <dt>You pay</dt>
+                      <dd>
+                        {quote.intent.amount} {inputSymbol}
+                      </dd>
+                      <dt>Minimum received</dt>
+                      <dd>
+                        {quote.minimum} {quote.outputSymbol}
+                      </dd>
+                      <dt>Network</dt>
+                      <dd>Ethereum Mainnet</dd>
+                      <dt>Price protection</dt>
+                      <dd>0.5% slippage tolerance</dd>
+                      <dt>Execution costs</dt>
+                      <dd>Included in the UniswapX quote</dd>
+                      <dt>Token approval</dt>
+                      <dd>{approved ? "Already approved" : "Wallet network fee applies"}</dd>
+                      <dt>Quote valid for</dt>
+                      <dd>
+                        {expired
+                          ? "Expired — refresh quote"
+                          : `${Math.max(0, Math.ceil((quote.expiresAt - clock) / 1000))}s`}
+                      </dd>
+                    </dl>
+                    <button
+                      type="button"
+                      className="st-primary"
+                      disabled={Boolean(busy || expired)}
+                      onClick={approved ? submit : approve}
+                    >
+                      {busy ||
+                        (approved
+                          ? "Sign and submit order"
+                          : `Approve ${quote.intent.amount} ${inputSymbol}`)}
+                    </button>
+                    <p className="st-caption">
+                      {approved
+                        ? "Your wallet signature authorizes this exact order. A submitted order still needs to fill."
+                        : "Approves only this input amount to Uniswap Permit2. Request a fresh quote after the approval confirms."}
+                    </p>
+                  </div>
+                )}
+                {error && (
+                  <p className="st-error" role="alert">
+                    {error}
+                  </p>
+                )}
+                {note && (
+                  <p className="st-caption" role="status">
+                    {note}
+                  </p>
+                )}
               </div>
-            )}
-            {error && (
-              <p className="st-error" role="alert">
-                {error}
-              </p>
-            )}
-            {note && (
-              <p className="st-caption" role="status">
-                {note}
-              </p>
             )}
           </div>
         </div>
