@@ -11,3 +11,26 @@ artifacts/
 .tanstack/
 .vinxi/
 .wrangler/
+
+# Local-only documents and editor/account bindings
+.lovable/
+**/.lovable/
+.codex/
+.agents/
+private/
+internal/
+*.docx
+*.xlsx
+*.pdf
+*.pem
+*.p12
+*.key
+*.bundle
+*.zip
+docs/ARCHITECTURE.md
+docs/FRONTEND-INTEGRATION.md
+docs/PRODUCT.md
+docs/ROADMAP.md
+docs/VERIFICATION.md
+docs/PROJECT-OVERVIEW.md
+docs/INVESTING-WORKSPACE.md

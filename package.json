@@ -13,12 +13,14 @@
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check src tests docs README.md package.json && npm --prefix frontend run format:integration:check",
-    "verify": "npm run format:check && npm test && npm run build",
+    "verify": "npm run format:check && npm test && npm run test:privacy && npm run build",
     "dev:starter": "vite --host 127.0.0.1 --port 5180 --strictPort",
     "build:starter": "tsc --noEmit && vite build",
     "setup": "npm ci && npm --prefix frontend ci",
     "identity:setup": "node scripts/setup-identity.mjs",
-    "identity:check": "node scripts/identity-guard.mjs --history"
+    "identity:check": "node scripts/identity-guard.mjs --history",
+    "privacy:check": "node scripts/identity-guard.mjs",
+    "test:privacy": "node --test tests/privacy-guard.test.mjs"
   },
   "dependencies": {
     "react": "18.3.1",
@@ -30,5 +32,6 @@
     "prettier": "3.9.5",
     "typescript": "6.0.3",
     "vite": "8.1.4"
-  }
+  },
+  "license": "PolyForm-Noncommercial-1.0.0"
 }
