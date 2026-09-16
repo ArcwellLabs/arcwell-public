@@ -82,3 +82,11 @@ Provider references:
 responses, arbitrary contract metadata, chain checks, testnet separation, outages,
 input validation, caching, and request admission. Run `npm run verify` with
 `NITRO_PRESET=node-server` before publication.
+
+## Provider outages and retained history
+
+Source availability distinguishes upstream HTTP errors, rate limits, local provider budgets, timeouts, missing endpoints, and invalid data. Retry times are displayed when available. Upstream response bodies are never exposed. HTTP 429 responses establish a bounded provider cooldown, preventing immediate repeat requests during that window.
+
+Verified, token-matched daily candles are cached for five minutes. If a refresh fails, the last verified history can remain visible for at most one hour, labeled as stale with its original retrieval time. This fallback applies only to historical candles, never to the displayed current price. Caches are bounded, process-local, and cleared on restart. An address confirmed to have no deployed contract cannot inherit cached history; mainnet and testnet caches are separate.
+
+Live checks on September 16, 2026 returned onchain metadata and market observations for USDC and EURC, with three and thirty daily candles respectively. USYC contract metadata was readable, but no liquid market price or history was returned. Those are point-in-time coverage observations, not guarantees. The explorer API was unavailable while other sources responded; the interface continued to show their independent observations.
