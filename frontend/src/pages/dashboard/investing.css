@@ -1289,3 +1289,110 @@
     animation: none !important;
   }
 }
+
+.q-search-toolbar {
+  display: flex;
+  align-items: end;
+  gap: 18px;
+  padding: 18px 20px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--q-border, #303238);
+}
+.q-search-toolbar > span {
+  color: #9a9aa2;
+  font-size: 12px;
+  padding-bottom: 12px;
+}
+.q-search-field {
+  display: grid;
+  gap: 8px;
+  width: min(100%, 360px);
+  font-size: 12px;
+  color: #bbbcc1;
+}
+.q-search-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  border: 1px solid #45474e;
+  background: #18191d;
+  border-radius: 8px;
+  min-height: 44px;
+}
+.q-search-input:focus-within {
+  outline: 2px solid #b9c9df;
+  outline-offset: 2px;
+}
+.q-search-input input {
+  min-width: 0;
+  width: 100%;
+  background: transparent;
+  color: #f5f5f2;
+  border: 0;
+  outline: 0;
+  font: inherit;
+  min-height: 44px;
+}
+.q-search-input button {
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #d5d5da;
+  padding: 8px;
+  cursor: pointer;
+}
+.q-instrument-search {
+  padding: 20px;
+  border: 1px solid #34363d;
+  border-radius: 10px;
+  margin-bottom: 18px;
+}
+.q-instrument-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+  margin-top: 16px;
+  padding: 3px;
+}
+.q-instrument-result {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  background: #191a1e;
+  border: 1px solid #35373e;
+  border-radius: 8px;
+  padding: 10px;
+  color: #ebebe8;
+  cursor: pointer;
+}
+.q-instrument-result.is-selected {
+  border-color: #becce0;
+  background: #2b3038;
+}
+.q-instrument-result small {
+  display: block;
+  color: #a1a3ab;
+  font-size: 11px;
+  margin-top: 4px;
+}
+.q-instrument-result:focus-visible {
+  outline: 2px solid #becce0;
+  outline-offset: 1px;
+}
+.ar-asset-identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.ar-detail h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}

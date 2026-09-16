@@ -1,3 +1,4 @@
+import AssetLogo from "@/components/AssetLogo";
 import { useEffect, useRef, useState } from "react";
 import { Search, ArrowUpRight, RefreshCw } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from "recharts";
@@ -216,7 +217,10 @@ export default function AssetResearch() {
                   aria-label={`Inspect ${asset.name} ${asset.address}`}
                 >
                   <div className="ar-result-top">
-                    <strong>{asset.symbol || "TOKEN"}</strong>
+                    <span className="ar-asset-identity">
+                      <AssetLogo network={network} address={asset.address} />
+                      <strong>{asset.symbol || "TOKEN"}</strong>
+                    </span>
                     <span>{asset.type}</span>
                   </div>
                   <p>{asset.name}</p>
@@ -258,6 +262,7 @@ export default function AssetResearch() {
                   {network === "mainnet" ? "Arc Mainnet · 5042" : "Arc Testnet · 5042002"}
                 </p>
                 <h2>
+                  <AssetLogo network={network} address={detail.asset.address} />
                   {detail.asset.name} <span>{detail.asset.symbol}</span>
                 </h2>
                 <code>{detail.asset.address}</code>

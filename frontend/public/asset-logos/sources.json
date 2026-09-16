@@ -1,0 +1,21 @@
+{
+  "retrieved": "2026-09-16",
+  "note": "Official issuer/company website assets. Tesla mark from its official organization account. Fund marks identify their sponsor; they are not separate stock issuers. Trademarks remain with their owners, excluded from the repository software license.",
+  "sources": {
+    "nvidia": "https://www.nvidia.com/favicon.ico",
+    "apple": "https://www.apple.com/favicon.ico",
+    "alphabet": "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png",
+    "amazon": "https://www.amazon.com/favicon.ico",
+    "microsoft": "https://learn.microsoft.com/en-us/entra/identity-platform/media/howto-add-branding-in-apps/ms-symbollockup_mssymbol_19.png",
+    "tesla": "https://avatars.githubusercontent.com/u/3066035?v=4",
+    "state-street": "https://www.ssga.com/favicon.ico",
+    "ishares": "https://www.ishares.com/blk-one02-c-assets/ishares-favicon.ico",
+    "jpmorgan": "https://www.jpmorganchase.com/etc.clientlibs/cws/clientlibs/clientlib-base/resources/jpmc/images/jpmc-favicon-152.png",
+    "visa": "https://www.visa.ca/content/dam/VCOM/Brand/favicon.ico",
+    "exxon": "https://corporate.exxonmobil.com/-/media/global/icons/xx-favicon.ico",
+    "invesco": "https://www.invesco.com/etc.clientlibs/invesco/clientlibs/main/resources/images/apple-touch-icon.png",
+    "usdc": "https://cdn.prod.website-files.com/67116d0daddc92483c812e88/69dd3dbaa10d052f7061dc70_logo%20(2).avif",
+    "eurc": "https://cdn.prod.website-files.com/67116d0daddc92483c812e88/69dd3dba50e99a6dea4a964f_logo%20(3).avif",
+    "usyc": "https://cdn.prod.website-files.com/67116d0daddc92483c812e88/69dd3db9bbf704a27fe7e312_logo%20(4).avif"
+  }
+}

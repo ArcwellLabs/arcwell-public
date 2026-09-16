@@ -40,6 +40,8 @@ import { chartShade, pct, usd } from "@/lib/quant-format";
 import { dashboardViewNumber, isDashboardViewEnabled } from "@/lib/dashboard-release";
 import "./investing.css";
 import AssetResearch from "./AssetResearch";
+import AssetLogo from "@/components/AssetLogo";
+import AssetSearchField from "@/components/AssetSearchField";
 
 type Props = {
   view: string;
@@ -134,12 +136,16 @@ export default function InvestingWorkspace(props: Props) {
 }
 
 function Portfolio({ book, onNavigate, setSymbol }: Props) {
+  const [holdingQuery, setHoldingQuery] = useState("");
   const [range, setRange] = useState("3M"),
     [chartMode, setChartMode] = useState("Value"),
     [insight, setInsight] = useState("Concentration"),
     [selected, setSelected] = useState("");
   const total = bookValue(book),
     holdings = INSTRUMENTS.filter((a) => book.positions[a.symbol] > 0);
+  const visibleHoldings = holdings.filter((a) =>
+    `${a.name} ${a.symbol}`.toLowerCase().includes(holdingQuery.trim().toLowerCase()),
+  );
   const all = useMemo(() => portfolioHistory(book), [book]),
     days = range === "1M" ? 22 : range === "3M" ? 66 : 253,
     history = all.slice(-days),
@@ -291,6 +297,16 @@ function Portfolio({ book, onNavigate, setSymbol }: Props) {
             </button>
           }
         >
+          <div className="q-search-toolbar">
+            <AssetSearchField
+              label="Search holdings"
+              value={holdingQuery}
+              onChange={setHoldingQuery}
+            />
+            <span role="status">
+              {visibleHoldings.length} of {holdings.length} positions
+            </span>
+          </div>
           <div className="q-table-scroll">
             <table className="q-table">
               <thead>
@@ -303,7 +319,12 @@ function Portfolio({ book, onNavigate, setSymbol }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {holdings.map((a) => {
+                {!visibleHoldings.length ? (
+                  <tr>
+                    <td colSpan={5}>No holdings match your search.</td>
+                  </tr>
+                ) : null}
+                {visibleHoldings.map((a) => {
                   const change =
                     statistics(HISTORIES[a.symbol].slice(-31).map((c) => c.close)).total * 100;
                   return (
@@ -316,7 +337,7 @@ function Portfolio({ book, onNavigate, setSymbol }: Props) {
                             onNavigate("trading");
                           }}
                         >
-                          <span className="q-token">{a.symbol.slice(0, 1)}</span>
+                          <AssetLogo symbol={a.symbol} />
                           <span>
                             {a.name}
                             <small>{a.symbol}</small>
@@ -495,6 +516,12 @@ function Markets({ setSymbol, onNavigate }: Props) {
 }
 
 function Trading({ book, setBook, symbol, setSymbol, ready }: Props) {
+  const [instrumentQuery, setInstrumentQuery] = useState("");
+  const matchingInstruments = INSTRUMENTS.filter((a) =>
+    `${a.name} ${a.symbol} ${a.sector}`
+      .toLowerCase()
+      .includes(instrumentQuery.trim().toLowerCase()),
+  );
   const [side, setSide] = useState("Buy"),
     [quantity, setQuantity] = useState("1"),
     [review, setReview] = useState(false),
@@ -556,7 +583,35 @@ function Trading({ book, setBook, symbol, setSymbol, ready }: Props) {
   };
   return (
     <>
+      <div className="q-instrument-search">
+        <AssetSearchField
+          label="Search paper instruments"
+          value={instrumentQuery}
+          onChange={setInstrumentQuery}
+        />
+        <div className="q-instrument-results" aria-label="Paper instruments">
+          {matchingInstruments.map((a) => (
+            <button
+              type="button"
+              key={a.symbol}
+              className={`q-instrument-result${a.symbol === asset.symbol ? " is-selected" : ""}`}
+              aria-pressed={a.symbol === asset.symbol}
+              onClick={() => choose(a.symbol)}
+            >
+              <AssetLogo symbol={a.symbol} />
+              <span>
+                <strong>{a.symbol}</strong>
+                <small>{a.name}</small>
+              </span>
+            </button>
+          ))}
+        </div>
+        {!matchingInstruments.length ? (
+          <p role="status">No paper instruments match. Use Markets to search Arc contracts.</p>
+        ) : null}
+      </div>
       <div className="q-instrument-strip">
+        <AssetLogo symbol={asset.symbol} />
         <label>
           Instrument
           <select
@@ -1286,7 +1341,14 @@ function Funding() {
 
 function Ledger({ book, onNavigate }: Props) {
   const [side, setSide] = useState("All");
-  const trades = book.trades.filter((t) => side === "All" || t.side === side.toLowerCase());
+  const [query, setQuery] = useState("");
+  const trades = book.trades.filter(
+    (t) =>
+      (side === "All" || t.side === side.toLowerCase()) &&
+      `${t.symbol} ${INSTRUMENTS.find((a) => a.symbol === t.symbol)?.name || ""} ${t.id}`
+        .toLowerCase()
+        .includes(query.trim().toLowerCase()),
+  );
   let cash = 2740;
   const movements = [
     { day: 0, value: cash },
@@ -1323,6 +1385,15 @@ function Ledger({ book, onNavigate }: Props) {
             />
           }
         >
+          <div className="q-search-toolbar">
+            <AssetSearchField
+              label="Search activity"
+              value={query}
+              onChange={setQuery}
+              placeholder="Name, symbol or order ID…"
+            />
+            <span role="status">{trades.length} matching fills</span>
+          </div>
           <div className="q-table-scroll">
             <table className="q-table">
               <thead>
@@ -1349,7 +1420,12 @@ function Ledger({ book, onNavigate }: Props) {
                       </span>
                       <small>{new Date(t.at).toLocaleString()}</small>
                     </td>
-                    <td>{t.symbol}</td>
+                    <td>
+                      <span className="q-asset-link">
+                        <AssetLogo symbol={t.symbol} />
+                        {t.symbol}
+                      </span>
+                    </td>
                     <td>{t.quantity}</td>
                     <td>{usd(t.price, 2)}</td>
                     <td>{usd(t.total, 2)}</td>
@@ -1361,7 +1437,11 @@ function Ledger({ book, onNavigate }: Props) {
           </div>
           {!trades.length ? (
             <div className="q-empty">
-              <p>No {side === "All" ? "" : side.toLowerCase()} paper fills yet.</p>
+              <p>
+                {query
+                  ? "No paper fills match your search."
+                  : `No ${side === "All" ? "" : side.toLowerCase() + " "}paper fills yet.`}
+              </p>
               <button className="q-button" onClick={() => onNavigate("trading")}>
                 Open trading ↗
               </button>
