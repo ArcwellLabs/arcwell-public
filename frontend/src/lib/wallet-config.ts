@@ -15,6 +15,8 @@ export function createWalletConfig() {
     connectors: [
       injected(),
       metaMask({
+        // Installed MetaMask is discovered separately; this connector handles mobile pairing.
+        ui: { preferExtension: false },
         dappMetadata: {
           name: "ARCWELL",
           url: "https://www.arcwellfi.com",
