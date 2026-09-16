@@ -104,7 +104,11 @@ export default function AssetResearch() {
     return () => window.clearInterval(timer);
   }, []);
   useEffect(() => {
-    if (!selected) return;
+    if (!selected) {
+      setLoadingDetail(false);
+      setDetailError("");
+      return;
+    }
     const controller = new AbortController();
     setLoadingDetail(true);
     setDetail(null);
