@@ -13,7 +13,7 @@
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check src tests docs README.md package.json && npm --prefix frontend run format:integration:check",
-    "verify": "npm run format:check && npm test && npm run test:privacy && npm run build",
+    "verify": "npm run format:check && npm test && npm run build && npm run test:privacy",
     "dev:starter": "vite --host 127.0.0.1 --port 5180 --strictPort",
     "build:starter": "tsc --noEmit && vite build",
     "setup": "npm ci && npm --prefix frontend ci",

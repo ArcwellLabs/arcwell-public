@@ -5,7 +5,6 @@ import {
   ArrowUpRight,
   Download,
   Fingerprint,
-  RotateCcw,
   SlidersHorizontal,
 } from "lucide-react";
 import {
@@ -18,14 +17,12 @@ import {
   downloadCsv,
   drawdowns,
   fillPaperOrder,
-  initialBook,
   mean,
   portfolioHistory,
   returns,
   rsi,
   simulatePaths,
   statistics,
-  INVESTING_VIEWS,
 } from "@/lib/quant";
 import type { PaperBook } from "@/lib/quant";
 import {
@@ -40,6 +37,7 @@ import {
 } from "./QuantCharts";
 import { ArcBalance, ArcNetworkCheck } from "./ArcTools";
 import { chartShade, pct, usd } from "@/lib/quant-format";
+import { dashboardViewNumber, isDashboardViewEnabled } from "@/lib/dashboard-release";
 import "./investing.css";
 
 type Props = {
@@ -55,11 +53,11 @@ type Props = {
 const TITLES: Record<string, [string, string]> = {
   portfolio: ["Portfolio", "Holdings, allocations and historical scenarios."],
   markets: ["Markets", "Explore the sample asset universe and compare market behavior."],
-  trading: ["Trading", "Price analysis, execution estimates and paper orders."],
+  trading: ["Trade", "Price analysis, execution estimates and paper orders."],
   risk: ["Risk", "Concentration, correlations and portfolio stress tests."],
   quant: ["Quant Lab", "Explore factors, model surfaces and allocation trade-offs."],
   funding: ["Funding", "USDC funding routes and public wallet inspection."],
-  ledger: ["Trading activity", "Paper fills, cash movements and position changes."],
+  ledger: ["Activity", "Paper fills, cash movements and position changes."],
 };
 export default function InvestingWorkspace(props: Props) {
   const { view, book, onNavigate } = props;
@@ -79,9 +77,7 @@ export default function InvestingWorkspace(props: Props) {
     <div className="quant-workspace">
       <header className="q-view-header">
         <div>
-          <p className="q-eyebrow">
-            [{String(INVESTING_VIEWS.indexOf(view) + 1).padStart(2, "0")}] ARCWELL control room
-          </p>
+          <p className="q-eyebrow">[{dashboardViewNumber(view)}] ARCWELL control room</p>
           <h1>{title}</h1>
           <p className="q-description">{description}</p>
         </div>
@@ -114,8 +110,11 @@ export default function InvestingWorkspace(props: Props) {
       )}
       <footer className="q-workspace-footer">
         <span>Research workspace / illustrative instruments</span>
-        <button onClick={() => onNavigate("network")}>
-          Arc Testnet tools <ArrowUpRight size={12} />
+        <button
+          onClick={() => onNavigate(isDashboardViewEnabled("network") ? "network" : "settings")}
+        >
+          {isDashboardViewEnabled("network") ? "Arc Testnet tools" : "About this beta"}{" "}
+          <ArrowUpRight size={12} />
         </button>
         <span>
           Prices and charts are synthetic. No brokerage or execution provider is connected.
@@ -341,9 +340,11 @@ function Portfolio({ book, onNavigate, setSymbol }: Props) {
             <p className="q-analysis" aria-live="polite">
               {analyst}
             </p>
-            <button className="q-button" onClick={() => onNavigate("risk")}>
-              Open risk tools <ArrowUpRight size={13} />
-            </button>
+            {isDashboardViewEnabled("risk") ? (
+              <button className="q-button" onClick={() => onNavigate("risk")}>
+                Open risk tools <ArrowUpRight size={13} />
+              </button>
+            ) : null}
           </div>
         </ChartPanel>
       </div>
@@ -1274,7 +1275,7 @@ function Funding() {
   );
 }
 
-function Ledger({ book, setBook, onNavigate }: Props) {
+function Ledger({ book, onNavigate }: Props) {
   const [side, setSide] = useState("All");
   const trades = book.trades.filter((t) => side === "All" || t.side === side.toLowerCase());
   let cash = 2740;
@@ -1378,8 +1379,8 @@ function Ledger({ book, setBook, onNavigate }: Props) {
             >
               <Download size={13} /> Export ledger
             </button>
-            <button className="q-button" onClick={() => setBook(initialBook())}>
-              <RotateCcw size={13} /> Reset paper account
+            <button className="q-button" onClick={() => onNavigate("settings")}>
+              <SlidersHorizontal size={13} /> Account settings
             </button>
           </div>
         </ChartPanel>

@@ -35,6 +35,8 @@ import Verifiers from "@/pages/dashboard/Verifiers";
 import Corrections from "@/pages/dashboard/Corrections";
 import ApiRewards from "@/pages/dashboard/ApiRewards";
 import Boundary from "@/pages/dashboard/Boundary";
+import MvpSettings from "@/pages/dashboard/MvpSettings";
+import { isDashboardViewEnabled, resolveDashboardView } from "@/lib/dashboard-release";
 
 import InvestingWorkspace from "@/pages/dashboard/InvestingWorkspace";
 import { usePaperBook } from "@/hooks/usePaperBook";
@@ -51,11 +53,12 @@ interface Category {
 const CATEGORIES: Category[] = [
   { id: "portfolio", label: "Portfolio", icon: LayoutDashboard },
   { id: "markets", label: "Markets", icon: ChartNoAxesCombined },
-  { id: "trading", label: "Trading", icon: ChartCandlestick },
+  { id: "trading", label: "Trade", icon: ChartCandlestick },
   { id: "risk", label: "Risk", icon: Scale },
   { id: "quant", label: "Quant Lab", icon: Orbit },
   { id: "funding", label: "Funding", icon: Wallet },
-  { id: "ledger", label: "Trading activity", icon: History },
+  { id: "ledger", label: "Activity", icon: History },
+  { id: "settings", label: "Settings", icon: SlidersHorizontal },
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "organizations", label: "Organizations", icon: Building2 },
   { id: "series", label: "RecordSeries", icon: FileStack },
@@ -64,7 +67,7 @@ const CATEGORIES: Category[] = [
   { id: "verifiers", label: "Verifiers", icon: ShieldCheck },
   { id: "corrections", label: "Corrections", icon: GitBranch },
   { id: "api", label: "API & Rewards", icon: KeyRound },
-  { id: "settings", label: "Settings / Boundary", icon: SlidersHorizontal },
+  { id: "boundary", label: "Registry settings", icon: SlidersHorizontal },
   { id: "assets", label: "Arc assets", icon: Coins },
   { id: "payments", label: "Payment drafts", icon: Send },
   { id: "activity", label: "Draft activity", icon: Activity },
@@ -72,7 +75,7 @@ const CATEGORIES: Category[] = [
   { id: "integrations", label: "Arc integrations", icon: Plug },
 ];
 
-const VALID_IDS = new Set(CATEGORIES.map((c) => c.id));
+const VISIBLE_CATEGORIES = CATEGORIES.filter((category) => isDashboardViewEnabled(category.id));
 
 export default function Dashboard() {
   const { book, setBook, loaded, storageNote } = usePaperBook();
@@ -81,11 +84,11 @@ export default function Dashboard() {
   const search = useSearch({ from: "/dashboard" });
   const navigate = useNavigate({ from: "/dashboard" });
   const raw = search.view ?? "portfolio";
-  const view = VALID_IDS.has(raw) ? raw : "portfolio";
+  const view = resolveDashboardView(raw);
 
   const setView = (id: string) => {
     void navigate({
-      search: id === "portfolio" ? {} : { view: id },
+      search: resolveDashboardView(id) === "portfolio" ? {} : { view: resolveDashboardView(id) },
       resetScroll: false,
     });
   };
@@ -132,6 +135,10 @@ export default function Dashboard() {
       case "api":
         return <ApiRewards />;
       case "settings":
+        return (
+          <MvpSettings book={book} setBook={setBook} ready={loaded} storageNote={storageNote} />
+        );
+      case "boundary":
         return <Boundary />;
       case "assets":
         return <ArcAssets />;
@@ -158,12 +165,12 @@ export default function Dashboard() {
               <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
             </span>
             <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink">
-              ARCWELL control room <span className="text-faint">/ research workspace</span>
+              ARCWELL <span className="text-faint">/ paper investing beta</span>
             </p>
           </div>
           <div className="flex items-center gap-4">
             <p className="hidden font-mono text-[11px] uppercase tracking-[0.14em] text-faint sm:block">
-              Arc Testnet · read-only tools
+              Practice account · no real execution
             </p>
             <span className="rounded-full border border-hairline px-3 py-1 font-mono text-[10px] text-ink-muted">
               Sample data
@@ -180,7 +187,7 @@ export default function Dashboard() {
             className="sticky top-[72px] flex max-h-[calc(100dvh-72px)] flex-col gap-1 overflow-y-auto border-r border-hairline px-4 py-8"
           >
             <p className="kicker mb-4 px-3">Categories</p>
-            {CATEGORIES.map((c, i) => {
+            {VISIBLE_CATEGORIES.map((c, i) => {
               const active = view === c.id;
               const Icon = c.icon;
               return (
@@ -221,7 +228,7 @@ export default function Dashboard() {
               <p className="font-mono text-[10px] uppercase leading-relaxed tracking-[0.12em] text-faint">
                 Paper investing & research.
                 <br />
-                Arc tools and evidence registry.
+                Explore. Practice. Track.
               </p>
             </div>
           </nav>
@@ -233,7 +240,7 @@ export default function Dashboard() {
             aria-label="Dashboard categories"
             className="touch-scroll flex gap-1 overflow-x-auto px-4 py-3"
           >
-            {CATEGORIES.map((c) => {
+            {VISIBLE_CATEGORIES.map((c) => {
               const active = view === c.id;
               const Icon = c.icon;
               return (
@@ -263,8 +270,8 @@ export default function Dashboard() {
           className="min-w-0 flex-1 px-6 py-8 md:px-10 lg:py-10 xl:px-14"
         >
           <p className="mb-6 rounded-xl border border-hairline bg-surface/50 px-5 py-4 text-xs leading-relaxed text-ink-muted">
-            Prices, holdings and registry records are samples. Paper orders change only this
-            browser’s account. Arc wallet and network checks read public Testnet data.
+            Prices and starting holdings are samples. Paper orders update only this browser’s
+            account. No real assets or funds move.
           </p>
           <motion.div
             key={view}
@@ -272,14 +279,14 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, ease: EASE }}
           >
-            {!INVESTING_VIEWS.includes(view) ? (
+            {!INVESTING_VIEWS.includes(view) && view !== "settings" ? (
               <LegacyAnalytics view={view} drafts={drafts} />
             ) : null}
             {renderView()}
           </motion.div>
 
           {/* Disclaimer strip */}
-          {!INVESTING_VIEWS.includes(view) ? (
+          {!INVESTING_VIEWS.includes(view) && view !== "settings" ? (
             <div className="mt-12 rounded-2xl border border-hairline bg-surface/50 px-5 py-4">
               <p className="text-[11px] leading-relaxed text-faint">{DISCLAIMER}</p>
             </div>

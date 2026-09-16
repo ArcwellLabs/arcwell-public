@@ -1,53 +1,53 @@
-import { useEffect, useRef } from 'react'
-import { Link } from '@tanstack/react-router'
-import { ArrowUpRight, Send, Twitter } from 'lucide-react'
-import { gsap, ScrollTrigger, prefersReducedMotion } from '@/lib/anim'
-import { comingSoon } from '@/lib/comingSoon'
-import Reveal from '@/components/Reveal'
-import Stars from '@/components/Stars'
+import { useEffect, useRef } from "react";
+import { Link } from "@tanstack/react-router";
+import { ArrowUpRight, Send, Twitter } from "lucide-react";
+import { gsap, ScrollTrigger, prefersReducedMotion } from "@/lib/anim";
+import { comingSoon } from "@/lib/comingSoon";
+import Reveal from "@/components/Reveal";
+import Stars from "@/components/Stars";
 
 const SITEMAP = [
-  { to: '/', label: 'Home' },
-  { to: '/studio', label: 'Operating model' },
-  { to: '/projects', label: 'Record explorer' },
-  { to: '/articles', label: 'Field notes' },
-  { to: '/contact', label: 'Start a pilot' },
-  { to: '/dashboard', label: 'Dashboard' },
-]
+  { to: "/", label: "Home" },
+  { to: "/studio", label: "Operating model" },
+  { to: "/projects", label: "Record explorer" },
+  { to: "/articles", label: "Field notes" },
+  { to: "/contact", label: "Start a pilot" },
+  { to: "/dashboard", label: "Dashboard" },
+];
 
 const SOCIALS = [
-  { icon: Twitter, label: 'X' },
-  { icon: Send, label: 'Telegram' },
-]
+  { icon: Twitter, label: "X" },
+  { icon: Send, label: "Telegram" },
+];
 
 /** Global footer: topo bg, newsletter, giant email, quote card, nav columns, ghost wordmark. */
 export default function Footer() {
-  const footerRef = useRef<HTMLElement>(null)
-  const wordmarkRef = useRef<HTMLDivElement>(null)
+  const footerRef = useRef<HTMLElement>(null);
+  const wordmarkRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const footer = footerRef.current
-    const wordmark = wordmarkRef.current
-    if (!footer || !wordmark || prefersReducedMotion()) return
+    const footer = footerRef.current;
+    const wordmark = wordmarkRef.current;
+    if (!footer || !wordmark || prefersReducedMotion()) return;
     const ctx = gsap.context(() => {
       gsap.fromTo(
         wordmark,
         { yPercent: 105 },
         {
           yPercent: 30,
-          ease: 'none',
+          ease: "none",
           scrollTrigger: {
             trigger: footer,
-            start: 'top 90%',
-            end: 'bottom bottom',
+            start: "top 90%",
+            end: "bottom bottom",
             scrub: true,
           },
         },
-      )
-    }, footer)
-    ScrollTrigger.refresh()
-    return () => ctx.revert()
-  }, [])
+      );
+    }, footer);
+    ScrollTrigger.refresh();
+    return () => ctx.revert();
+  }, []);
 
   return (
     <footer ref={footerRef} className="relative overflow-hidden border-t border-hairline bg-bg">
@@ -103,7 +103,10 @@ export default function Footer() {
             <ul className="space-y-3">
               {SITEMAP.map((item) => (
                 <li key={item.to}>
-                  <Link to={item.to} className="text-sm text-ink-muted transition-colors hover:text-ink">
+                  <Link
+                    to={item.to}
+                    className="text-sm text-ink-muted transition-colors hover:text-ink"
+                  >
                     {item.label}
                   </Link>
                 </li>
@@ -132,8 +135,12 @@ export default function Footer() {
             <div className="flex flex-col gap-3 text-sm text-ink-muted md:items-end">
               <span>© 2025 ARCWELL</span>
               <div className="flex gap-6">
-                <Link to="/dashboard" search={{ view: "boundary" }} className="transition-colors hover:text-ink">
-                  Boundary
+                <Link
+                  to="/dashboard"
+                  search={{ view: "settings" }}
+                  className="transition-colors hover:text-ink"
+                >
+                  Product limits
                 </Link>
                 <Link to="/contact" className="transition-colors hover:text-ink">
                   Pilot terms
@@ -154,5 +161,5 @@ export default function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }
