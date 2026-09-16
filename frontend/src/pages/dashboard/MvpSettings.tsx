@@ -208,9 +208,9 @@ export default function MvpSettings({
               <div className="aw-data-note">
                 <h3>Portfolio & trading workspace</h3>
                 <p>
-                  Portfolio values and Trading charts use the built-in reference-price dataset.
-                  Holdings, cash, and recorded orders are stored in this browser. Recorded orders
-                  update the workspace ledger; they are not sent to a brokerage.
+                  The saved Portfolio account uses the built-in reference-price dataset. Its
+                  holdings, cash, and earlier recorded orders are stored in this browser. These
+                  records are independent of your wallet assets and wallet trading.
                 </p>
                 <p>
                   The holdings chart reconstructs current positions over historical reference
