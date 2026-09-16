@@ -1,3 +1,5 @@
+> **Markets update:** Live Arc asset research now replaces the original sample market map. Portfolio and Trade remain paper simulations. See the [current data integration guide](../ASSET-RESEARCH.md) for sources and coverage.
+
 # ARCWELL frontend experience
 
 The five view journey from discovery to paper activity

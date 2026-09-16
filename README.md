@@ -30,9 +30,13 @@ clear order review, and a paper account that stays with you in the same browser.
 Open it and start exploring. There is no account setup, wallet connection, API key,
 or database to configure for the demonstration.
 
-**This is a paper-investing beta.** Prices, histories, and starting holdings are
-synthetic. Orders use simulated funds and fixed sample prices. No real assets or
-money move, and familiar symbols do not represent supported token listings.
+**Markets now connects to live Arc data.** Search by name, symbol, or contract
+address and inspect source-linked prices, liquidity, volume, contract metadata,
+and available history. Portfolio and Trade remain paper simulations with synthetic
+prices and starting holdings. No real assets or money move.
+
+Read the [asset research guide](docs/ASSET-RESEARCH.md) for coverage, sources,
+freshness, and unavailable-data behavior.
 
 [![ARCWELL MVP portfolio with five-view navigation, holdings, allocation, and synthetic history](docs/assets/mvp-portfolio.jpg)](https://www.arcwellfi.com/dashboard)
 
@@ -59,12 +63,16 @@ it is a reconstruction, not an actual investment track record.
 
 ### 02 · Markets — discover and compare
 
-Scan a market heatmap, search by asset, filter by sector, and sort the sample
-universe. Compare return, volatility, and drawdown over selectable windows.
-Selecting an instrument carries it into the trading view, keeping discovery and
-practice connected.
+Search Arc Mainnet or Testnet by name, symbol, or contract address. Results keep
+lookalike tickers separate and identify Arc’s published reference contracts.
 
-![MVP market map with asset search, sector filters, sorting, and sixteen illustrative instruments](docs/assets/mvp-markets.jpg)
+Inspect live contract metadata, pool prices, liquidity, volume, holder counts, and
+available daily history. DEX Screener, GeckoTerminal, Arc RPC, and explorer
+observations carry source links and retrieval times. Missing data stays unavailable.
+Mainnet pricing is never applied to testnet assets.
+
+Research is read-only; selecting a real Arc asset does not turn it into an executable
+order or silently add it to the separate sample trading universe.
 
 [Explore Markets →](https://www.arcwellfi.com/dashboard?view=markets)
 
@@ -113,6 +121,8 @@ checks its structure when loading it again.
 ```mermaid
 flowchart LR
     Runtime["Web runtime<br/>TanStack Start + Nitro"] -->|"HTML and assets"| UI["Five-view React workspace"]
+    UI -->|"Asset search and research"| API["Read-only asset API"]
+    API --> Sources["Arc RPC · GeckoTerminal<br/>DEX Screener · Arc explorer"]
     Fixtures["Deterministic sample data"] --> Logic["Portfolio calculations<br/>and paper-order rules"]
     UI <-->|"Interaction and results"| Logic
     UI <-->|"Save and restore"| Store["Browser localStorage"]
@@ -120,7 +130,8 @@ flowchart LR
 ```
 
 **The browser runs the investing simulation.** The server renders and delivers
-the application. There is no customer-account database, brokerage connection,
+the application and serves cached, rate-limited asset research. There is no
+customer-account database, brokerage connection,
 wallet signing, deposit flow, or real order execution in the MVP.
 
 | Technology                          | Role in the experience                                                     |
