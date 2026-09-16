@@ -7,7 +7,7 @@ import {
 } from '../frontend/src/lib/dashboard-release.ts';
 
 test('MVP accepts core routes and closes deferred or unknown deep links', () => {
-  for (const view of ['portfolio', 'markets', 'trading', 'ledger', 'arc', 'settings']) {
+  for (const view of ['portfolio', 'markets', 'trading', 'swap', 'ledger', 'arc', 'settings']) {
     assert.equal(resolveDashboardView(view), view);
   }
   for (const view of [

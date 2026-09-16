@@ -1,9 +1,14 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { resolveDashboardView } from "@/lib/dashboard-release";
+import { isAssetAddress } from "../../../src/asset-data";
 import Dashboard from "@/pages/Dashboard";
 
 export const Route = createFileRoute("/dashboard")({
-  validateSearch: (search: Record<string, unknown>): { view?: string } => ({
+  validateSearch: (search: Record<string, unknown>): { view?: string; asset?: string } => ({
+    asset:
+      typeof search["asset"] === "string" && isAssetAddress(search["asset"])
+        ? search["asset"].toLowerCase()
+        : undefined,
     view: typeof search["view"] === "string" ? search["view"] : undefined,
   }),
   beforeLoad: ({ search }) => {
@@ -22,7 +27,7 @@ export const Route = createFileRoute("/dashboard")({
       {
         name: "description",
         content:
-          "Explore markets, practice paper trading, and inspect Arc wallet balances and transaction receipts.",
+          "Explore Arc markets, prepare Uniswap swaps, practice paper trading, and inspect wallet balances and receipts.",
       },
       { property: "og:title", content: "ARCWELL — Investing & Research" },
       {

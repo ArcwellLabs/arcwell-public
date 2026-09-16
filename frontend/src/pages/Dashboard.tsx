@@ -35,6 +35,7 @@ import Verifiers from "@/pages/dashboard/Verifiers";
 import Corrections from "@/pages/dashboard/Corrections";
 import ApiRewards from "@/pages/dashboard/ApiRewards";
 import Boundary from "@/pages/dashboard/Boundary";
+import SwapWorkspace from "@/pages/dashboard/SwapWorkspace";
 import ArcWorkspace from "@/pages/dashboard/ArcWorkspace";
 import MvpSettings from "@/pages/dashboard/MvpSettings";
 import { isDashboardViewEnabled, resolveDashboardView } from "@/lib/dashboard-release";
@@ -55,6 +56,7 @@ const CATEGORIES: Category[] = [
   { id: "portfolio", label: "Portfolio", icon: LayoutDashboard },
   { id: "markets", label: "Markets", icon: ChartNoAxesCombined },
   { id: "trading", label: "Trade", icon: ChartCandlestick },
+  { id: "swap", label: "Swap", icon: Coins },
   { id: "risk", label: "Risk", icon: Scale },
   { id: "quant", label: "Quant Lab", icon: Orbit },
   { id: "funding", label: "Funding", icon: Wallet },
@@ -122,6 +124,8 @@ export default function Dashboard() {
         />
       );
     switch (view) {
+      case "swap":
+        return <SwapWorkspace key={search.asset || "default"} initialAddress={search.asset} />;
       case "arc":
         return <ArcWorkspace />;
       case "organizations":
@@ -171,24 +175,33 @@ export default function Dashboard() {
             <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink">
               ARCWELL{" "}
               <span className="text-faint">
-                / {view === "arc" ? "Arc workspace" : "paper investing beta"}
+                /{" "}
+                {view === "swap"
+                  ? "Arc swaps"
+                  : view === "arc"
+                    ? "Arc workspace"
+                    : "paper investing beta"}
               </span>
             </p>
           </div>
           <div className="flex items-center gap-4">
             <p className="hidden font-mono text-[11px] uppercase tracking-[0.14em] text-faint sm:block">
-              {view === "arc"
-                ? "Wallet and network inspection"
-                : view === "markets"
-                  ? "Asset discovery · no real execution"
-                  : "Practice account · no real execution"}
+              {view === "swap"
+                ? "Execution through Uniswap"
+                : view === "arc"
+                  ? "Wallet and network inspection"
+                  : view === "markets"
+                    ? "Asset discovery · no real execution"
+                    : "Practice account · no real execution"}
             </p>
             <span className="rounded-full border border-hairline px-3 py-1 font-mono text-[10px] text-ink-muted">
-              {view === "arc"
-                ? "Onchain reads"
-                : view === "markets"
-                  ? "Sourced asset data"
-                  : "Sample data"}
+              {view === "swap"
+                ? "Arc Mainnet"
+                : view === "arc"
+                  ? "Onchain reads"
+                  : view === "markets"
+                    ? "Sourced asset data"
+                    : "Sample data"}
             </span>
           </div>
         </div>
@@ -285,11 +298,13 @@ export default function Dashboard() {
           className="min-w-0 flex-1 px-6 py-8 md:px-10 lg:py-10 xl:px-14"
         >
           <p className="mb-6 rounded-xl border border-hairline bg-surface/50 px-5 py-4 text-xs leading-relaxed text-ink-muted">
-            {view === "arc"
-              ? "Onchain balances and receipts are read from the selected Arc network. Stock purchases are not connected yet."
-              : view === "markets"
-                ? "Search Arc assets by name, symbol, or contract address. Check each result’s network, source, and observation time. Trading remains a separate paper simulation."
-                : "Prices and starting holdings are samples. Paper orders update only this browser’s account. No real assets or funds move."}
+            {view === "swap"
+              ? "Review the asset pair here, then get a quote and authorize on Uniswap. External swaps do not update your paper account."
+              : view === "arc"
+                ? "Onchain balances and receipts are read from the selected Arc network. Stock purchases are not connected yet."
+                : view === "markets"
+                  ? "Search Arc assets by name, symbol, or contract address. Check each result’s network, source, and observation time. Trading remains a separate paper simulation."
+                  : "Prices and starting holdings are samples. Paper orders update only this browser’s account. No real assets or funds move."}
           </p>
           <motion.div
             key={view}
@@ -297,14 +312,20 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, ease: EASE }}
           >
-            {!INVESTING_VIEWS.includes(view) && view !== "settings" && view !== "arc" ? (
+            {!INVESTING_VIEWS.includes(view) &&
+            view !== "settings" &&
+            view !== "arc" &&
+            view !== "swap" ? (
               <LegacyAnalytics view={view} drafts={drafts} />
             ) : null}
             {renderView()}
           </motion.div>
 
           {/* Disclaimer strip */}
-          {!INVESTING_VIEWS.includes(view) && view !== "settings" && view !== "arc" ? (
+          {!INVESTING_VIEWS.includes(view) &&
+          view !== "settings" &&
+          view !== "arc" &&
+          view !== "swap" ? (
             <div className="mt-12 rounded-2xl border border-hairline bg-surface/50 px-5 py-4">
               <p className="text-[11px] leading-relaxed text-faint">{DISCLAIMER}</p>
             </div>

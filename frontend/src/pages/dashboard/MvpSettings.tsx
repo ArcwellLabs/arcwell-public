@@ -105,10 +105,10 @@ export default function MvpSettings({
               selling. Paper fills update your local holdings, cash and activity.
             </p>
             <p className="q-description">
-              The Arc tab connects a browser wallet and reads balances and receipts. No brokerage,
-              wallet signing, deposits, withdrawals or real stock execution is connected. Familiar
-              asset symbols are examples, not supported token listings. Issuer backing, eligibility
-              and live prices still require verified providers.
+              Markets reads sourced Arc asset data. The Arc tab connects a browser wallet and reads
+              balances and receipts. Swap prepares token pairs for the official Uniswap app, where
+              users obtain quotes and authorize transactions. Stock instruments in Trade remain
+              paper examples; no brokerage or real stock execution is connected.
             </p>
             <p className="q-description">
               Charts reconstruct today’s holdings across sample historical prices. They do not

@@ -1,0 +1,246 @@
+.sw-workspace {
+  max-width: 1100px;
+  margin: auto;
+  padding: clamp(20px, 3vw, 44px);
+}
+.sw-heading h1 {
+  font-size: clamp(30px, 4vw, 48px);
+  letter-spacing: -0.045em;
+  line-height: 1.1;
+  margin: 15px 0;
+}
+.sw-heading > p:last-child {
+  color: var(--ink-muted);
+  font-size: 15px;
+  max-width: 570px;
+  line-height: 1.7;
+}
+.sw-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px 30px;
+  list-style: none;
+  padding: 25px 0;
+  margin: 15px 0;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+.sw-steps span {
+  font-family: monospace;
+  color: var(--lime);
+  margin-right: 8px;
+}
+.sw-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.sw-card {
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  border-radius: 20px;
+  padding: clamp(18px, 3vw, 28px);
+  min-width: 0;
+}
+.sw-card-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 25px;
+}
+.sw-card h2 {
+  font-size: 19px;
+  letter-spacing: -0.02em;
+}
+.sw-card-title > span {
+  font: 9px monospace;
+  letter-spacing: 0.1em;
+  color: var(--ink-muted);
+}
+.sw-card label {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-muted);
+  margin: 18px 0 9px;
+}
+.sw-card input,
+.sw-card select {
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink);
+  padding: 12px;
+  font-size: 13px;
+}
+.sw-card input:focus-visible,
+.sw-card select:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 2px;
+}
+.sw-input-row {
+  display: flex;
+  gap: 8px;
+}
+.sw-input-row input {
+  font-family: monospace;
+  font-size: 11px;
+}
+.sw-input-row button {
+  flex-shrink: 0;
+}
+.sw-shortcuts {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--ink-muted);
+}
+.sw-shortcuts a,
+.sw-text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.sw-shortcuts button {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.sw-token {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--hairline);
+  padding: 14px;
+  border-radius: 12px;
+  margin: 22px 0;
+  overflow-wrap: anywhere;
+}
+.sw-token div {
+  flex: 1;
+  min-width: 0;
+}
+.sw-token strong {
+  font-size: 14px;
+}
+.sw-token strong span {
+  color: var(--ink-muted);
+  font-weight: 400;
+}
+.sw-token p {
+  font-size: 11px;
+  color: var(--ink-muted);
+  margin-top: 4px;
+}
+.sw-amount {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.sw-amount input {
+  font-size: 26px;
+  letter-spacing: -0.02em;
+}
+.sw-primary {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  background: var(--lime);
+  color: var(--bg);
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 20px;
+}
+.sw-primary:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.sw-note {
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--ink-muted);
+  margin-top: 15px;
+}
+.sw-error {
+  font-size: 12px;
+  line-height: 1.6;
+  border: 1px solid #a66b62;
+  padding: 14px;
+  border-radius: 10px;
+  margin-top: 16px;
+  color: #edb2a8;
+}
+.sw-review {
+  border-top: 1px solid var(--hairline-strong);
+  margin-top: 26px;
+  padding-top: 26px;
+}
+.sw-review h3 {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 22px;
+  margin: 14px 0;
+}
+.sw-review dl {
+  font-size: 11px;
+}
+.sw-review dt {
+  color: var(--ink-muted);
+  margin-top: 13px;
+}
+.sw-review dd {
+  overflow-wrap: anywhere;
+  font-family: monospace;
+  margin-top: 4px;
+}
+.sw-context {
+  display: grid;
+  gap: 18px;
+}
+.sw-context .sw-card h2 {
+  margin: 12px 0;
+}
+.sw-context .sw-card p:not(.q-eyebrow) {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--ink-muted);
+  margin-top: 13px;
+}
+.sw-text-link {
+  font-size: 12px;
+  margin-top: 16px;
+}
+@media (max-width: 760px) {
+  .sw-grid {
+    grid-template-columns: 1fr;
+  }
+  .sw-steps {
+    gap: 12px;
+    font-size: 10px;
+  }
+  .sw-input-row {
+    flex-wrap: wrap;
+  }
+  .sw-input-row input {
+    flex-basis: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sw-workspace * {
+    scroll-behavior: auto;
+  }
+}
