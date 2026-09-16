@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { getLenis } from "@/lib/lenis";
 import MenuOverlay from "@/components/MenuOverlay";
+import WalletButton from "@/components/wallet/WalletButton";
 
 function useTorontoTime() {
   const [time, setTime] = useState("");
@@ -81,7 +82,7 @@ export default function Navbar({
             · {time} EST
           </div>
 
-          <nav className="flex items-center gap-7" aria-label="Primary">
+          <nav className="flex items-center gap-3 sm:gap-7" aria-label="Primary">
             <Link
               to={dashboard ? "/dashboard" : "/projects"}
               search={dashboard ? { view: "markets" } : {}}
@@ -94,13 +95,16 @@ export default function Navbar({
               />
             </Link>
             {dashboard ? (
-              <Link
-                to="/dashboard"
-                search={{ view: "settings" }}
-                className="flex h-10 items-center rounded-full border border-white/25 px-4 font-mono text-xs uppercase tracking-[0.18em] hover:border-white/60"
-              >
-                Settings
-              </Link>
+              <>
+                <Link
+                  to="/dashboard"
+                  search={{ view: "settings" }}
+                  className="hidden text-sm md:block"
+                >
+                  Settings
+                </Link>
+                <WalletButton />
+              </>
             ) : (
               <button
                 type="button"

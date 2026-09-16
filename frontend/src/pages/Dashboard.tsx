@@ -318,7 +318,7 @@ export default function Dashboard() {
               {view === "swap"
                 ? "Review the asset pair here, then get a quote and authorize on Uniswap. External swaps do not update your paper account."
                 : view === "arc"
-                  ? "Onchain balances and receipts are read from the selected Arc network. Stock purchases are not connected yet."
+                  ? "Connect your wallet to inspect Arc balances and receipts. Stock purchases are available in Trade, with route and settlement details shown before approval."
                   : view === "markets"
                     ? "Search Arc assets by name, symbol, or contract address. Check each result’s network, source, and observation time. Trading remains a separate paper simulation."
                     : "Prices and starting holdings are samples. Paper orders update only this browser’s account. No real assets or funds move."}

@@ -18,6 +18,7 @@ import { STOCK_CATALOG_METADATA } from "../../../../src/stock-catalog";
 import type { StockAsset } from "../../../../src/stock-catalog-source";
 import "@/components/asset-logo.css";
 import "./tokenized-stocks.css";
+import { useWalletSession } from "@/lib/wallet-session";
 import StockTransferRecovery from "./StockTransferRecovery";
 import StockCheckoutLoader from "./StockCheckoutLoader";
 
@@ -65,6 +66,8 @@ function StockLogo({ asset }: { asset: StockAsset }) {
 }
 
 export default function TokenizedStocks() {
+  const walletSession = useWalletSession();
+  const { setTransactionLock } = walletSession;
   const [ready, setReady] = useState<boolean | null>(null);
   const [symbol, setSymbol] = useState<string>("AAPLon");
   const [query, setQuery] = useState("");
@@ -144,9 +147,11 @@ export default function TokenizedStocks() {
   }, []);
 
   useEffect(() => {
-    const injected = (window as Window & { ethereum?: StockWallet }).ethereum;
-    if (!injected) return;
+    const injected = walletSession.provider;
     provider.current = injected;
+    invalidate();
+    setAddress(walletSession.chainId === 1 ? walletSession.address : "");
+    if (!injected) return;
     const changed = () => {
       invalidate();
       setAddress("");
@@ -158,7 +163,12 @@ export default function TokenizedStocks() {
       injected.removeListener?.("accountsChanged", changed);
       injected.removeListener?.("chainChanged", changed);
     };
-  }, []);
+  }, [walletSession.provider, walletSession.address, walletSession.chainId]);
+
+  useEffect(() => {
+    setTransactionLock("stock-trade", locked);
+    return () => setTransactionLock("stock-trade", false);
+  }, [locked, setTransactionLock]);
 
   const checkStatus = async (record: Pending) => {
     try {
@@ -217,8 +227,12 @@ export default function TokenizedStocks() {
       throw new Error("Trade or wallet changed. Request a fresh quote.");
   };
 
-  const connect = () =>
-    run("Connecting wallet…", async () => {
+  const connect = () => {
+    if (!walletSession.provider) {
+      walletSession.openWallet();
+      return;
+    }
+    return run("Connecting wallet…", async () => {
       const wallet = getWallet();
       const accounts = await wallet.request({ method: "eth_requestAccounts" });
       if (!Array.isArray(accounts) || !/^0x[\da-fA-F]{40}$/.test(String(accounts[0])))
@@ -233,6 +247,7 @@ export default function TokenizedStocks() {
       invalidate();
       setAddress(accounts[0]);
     });
+  };
   const requestQuote = () =>
     run("Checking funds and quote…", async () => {
       setQuote(null);
@@ -603,7 +618,9 @@ export default function TokenizedStocks() {
                   <Wallet size={16} />
                   {address
                     ? `${address.slice(0, 6)}…${address.slice(-4)} · Ethereum`
-                    : "Connect wallet for stock order"}
+                    : walletSession.address
+                      ? "Switch wallet to Ethereum"
+                      : "Connect wallet"}
                 </button>
                 <button
                   type="button"

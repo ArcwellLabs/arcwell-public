@@ -14,9 +14,11 @@
     "format:integration:check": "prettier --check src/lib/arc.ts src/lib/arc-integrations.ts src/pages/dashboard/ArcTools.tsx src/pages/Dashboard.tsx src/pages/dashboard/Overview.tsx src/pages/dashboard/Transactions.tsx src/lib/quant.ts src/pages/dashboard/InvestingWorkspace.tsx src/pages/dashboard/QuantCharts.tsx src/pages/dashboard/LegacyAnalytics.tsx src/pages/dashboard/investing.css src/routes/dashboard.tsx src/lib/quant-format.ts src/hooks/usePaperBook.ts"
   },
   "dependencies": {
+    "@coinbase/wallet-sdk": "4.3.7",
     "@hookform/resolvers": "^5.2.2",
     "@lifi/widget": "4.6.0",
     "@lifi/widget-provider-ethereum": "4.1.4",
+    "@metamask/connect-evm": "2.1.1",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-aspect-ratio": "^1.1.8",
@@ -70,7 +72,9 @@
     "tailwindcss": "^4.2.1",
     "tw-animate-css": "^1.3.4",
     "vaul": "^1.1.2",
+    "viem": "2.56.6",
     "vite-tsconfig-paths": "^6.0.2",
+    "wagmi": "3.7.7",
     "zod": "^3.24.2"
   },
   "devDependencies": {
@@ -93,7 +97,10 @@
     "vite": "^8.2.0"
   },
   "overrides": {
-    "ws": "8.21.3"
+    "ws": "8.21.3",
+    "@metamask/utils": {
+      "uuid": "11.1.1"
+    }
   },
   "license": "PolyForm-Noncommercial-1.0.0"
 }

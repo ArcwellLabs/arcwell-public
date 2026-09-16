@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 import { Toaster } from "sonner";
 
 import Layout from "@/components/Layout";
+import WalletProvider from "@/components/wallet/WalletProvider";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -134,7 +135,9 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render inside Layout's <Outlet />. */}
-      <Layout />
+      <WalletProvider>
+        <Layout />
+      </WalletProvider>
       <Toaster
         theme="dark"
         position="bottom-center"

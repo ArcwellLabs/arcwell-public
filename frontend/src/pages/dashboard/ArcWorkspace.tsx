@@ -10,8 +10,8 @@ import {
   estimateNativeUsdcTransfer,
 } from "@/lib/arc";
 import type { ArcNetwork } from "@/lib/arc";
-import { connectArcWallet, switchArcNetwork } from "@/lib/arc-wallet";
-import type { WalletProvider } from "@/lib/arc-wallet";
+import { switchArcNetwork } from "@/lib/arc-wallet";
+import { useWalletSession } from "@/lib/wallet-session";
 import { ChartPanel } from "./QuantCharts";
 import { shortHash } from "./ui";
 import "./investing.css";
@@ -82,8 +82,12 @@ function NetworkWorkspace({ network }: { network: ArcNetwork }) {
   const [hash, setHash] = useState("");
   const [recipient, setRecipient] = useState("");
   const [transferAmount, setTransferAmount] = useState("");
-  const [provider, setProvider] = useState<WalletProvider | null>(null);
-  const [wallet, setWallet] = useState<{ address: string; chainId: number } | null>(null);
+  const session = useWalletSession();
+  const provider = session.provider;
+  const wallet =
+    session.address && session.chainId
+      ? { address: session.address, chainId: session.chainId }
+      : null;
   const [walletBusy, setWalletBusy] = useState(false);
   const [walletError, setWalletError] = useState("");
   const walletGeneration = useRef(0);
@@ -95,51 +99,27 @@ function NetworkWorkspace({ network }: { network: ArcNetwork }) {
   const resetEstimate = estimate.reset;
 
   useEffect(() => {
-    const injected = (window as Window & { ethereum?: WalletProvider }).ethereum;
-    if (!injected || typeof injected.request !== "function") return;
-    setProvider(injected);
-    const invalidate = () => {
-      setWallet(null);
-      setAddress("");
-      resetBalance();
-      resetEstimate();
-    };
-    const disconnect = () => {
-      walletGeneration.current += 1;
-      setWalletBusy(false);
-      invalidate();
-    };
-    injected.on?.("disconnect", disconnect);
-    for (const event of ["accountsChanged", "chainChanged"]) injected.on?.(event, invalidate);
-    return () => {
-      walletGeneration.current += 1;
-      injected.removeListener?.("disconnect", disconnect);
-      for (const event of ["accountsChanged", "chainChanged"])
-        injected.removeListener?.(event, invalidate);
-    };
-  }, [resetBalance, resetEstimate]);
+    walletGeneration.current += 1;
+    setAddress(session.address);
+    resetBalance();
+    resetEstimate();
+  }, [session.address, session.chainId, resetBalance, resetEstimate]);
 
   async function connect(switchNetwork = false) {
-    if (!provider) return;
-    const generation = ++walletGeneration.current;
+    if (!provider || !switchNetwork) {
+      session.openWallet();
+      return;
+    }
     setWalletBusy(true);
     setWalletError("");
+    session.setTransactionLock("arc-network", true);
     try {
-      if (switchNetwork) await switchArcNetwork(provider, network);
-      const connected = await connectArcWallet(provider);
-      // Keep in-flight authorization from restoring a connection after unmount
-      // or an explicit clear. Network events discard the previous read data.
-      if (generation === walletGeneration.current) {
-        setWallet(connected);
-        setAddress(connected.address);
-        resetBalance();
-        resetEstimate();
-      }
+      await switchArcNetwork(provider, network);
     } catch (e) {
-      if (generation === walletGeneration.current)
-        setWalletError(e instanceof Error ? e.message : "Wallet connection was declined.");
+      setWalletError(e instanceof Error ? e.message : "Network change was declined.");
     } finally {
-      if (generation === walletGeneration.current) setWalletBusy(false);
+      setWalletBusy(false);
+      session.setTransactionLock("arc-network", false);
     }
   }
 
@@ -190,14 +170,14 @@ function NetworkWorkspace({ network }: { network: ArcNetwork }) {
       >
         <div className="q-body space-y-4">
           <p className="q-description">
-            Connect a browser wallet or inspect a public address. This view reads Arc directly. Your
-            paper portfolio stays separate.
+            Connect your preferred wallet or inspect a public address. This view reads Arc directly.
+            Your paper portfolio stays separate.
           </p>
           <div className="q-toolbar">
             <button
               type="button"
               className="q-button"
-              disabled={!provider || walletBusy}
+              disabled={!session.ready || session.busy || session.locked || walletBusy}
               onClick={() => void connect()}
             >
               <Wallet size={14} />
@@ -205,13 +185,13 @@ function NetworkWorkspace({ network }: { network: ArcNetwork }) {
                 ? "Waiting for wallet…"
                 : wallet
                   ? shortHash(wallet.address, 6)
-                  : "Connect browser wallet"}
+                  : "Connect wallet"}
             </button>
             {wallet && wallet.chainId !== network.chainId ? (
               <button
                 type="button"
                 className="q-button"
-                disabled={walletBusy}
+                disabled={walletBusy || session.busy || session.locked}
                 onClick={() => void connect(true)}
               >
                 Switch wallet to {network.name}
@@ -221,9 +201,10 @@ function NetworkWorkspace({ network }: { network: ArcNetwork }) {
               <button
                 type="button"
                 className="q-button"
+                disabled={walletBusy || session.busy || session.locked}
                 onClick={() => {
                   walletGeneration.current += 1;
-                  setWallet(null);
+                  void session.disconnect();
                   setAddress("");
                   setWalletError("");
                   setWalletBusy(false);
@@ -237,7 +218,8 @@ function NetworkWorkspace({ network }: { network: ArcNetwork }) {
           </div>
           {!provider ? (
             <p className="text-xs text-ink-muted">
-              No browser wallet detected. You can still inspect an address below.
+              Choose MetaMask, Coinbase Wallet or an installed wallet such as Rabby, Phantom or
+              Trust Wallet.
             </p>
           ) : null}
           {wallet ? (
@@ -435,19 +417,15 @@ function NetworkWorkspace({ network }: { network: ArcNetwork }) {
           ) : null}
         </form>
       </ChartPanel>
-      <ChartPanel title="Stock purchases on Arc" meta="Not available yet">
+      <ChartPanel title="Use your wallet to trade" meta="Tokenized stocks & ETFs">
         <div className="q-body space-y-4">
           <p className="q-description">
-            Arcwell needs a supported tokenized-stock issuer and trading route before real purchases
-            can open. Connecting a wallet does not enable stock orders.
+            Browse issuer-listed stocks and ETFs in Trade. Pay with Arc USDC where a purchase route
+            is available; the stock tokens settle in your wallet on Ethereum.
           </p>
-          <div className="flex flex-wrap gap-3">
-            <span className="q-badge">Issuer connection pending</span>
-            <span className="q-badge">Real orders unavailable</span>
-          </div>
-          <p className="text-sm text-ink-muted">
-            The Trade tab currently uses a separate paper account. No money is deducted from your
-            wallet.
+          <ExplorerLink href="/dashboard?view=stocks" label="Explore stocks & ETFs" />
+          <p className="text-xs text-ink-muted">
+            Review the route, fees and destination before approving any transaction.
           </p>
         </div>
       </ChartPanel>
