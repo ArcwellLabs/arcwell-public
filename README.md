@@ -9,6 +9,7 @@
   <a href="https://www.arcwellfi.com/dashboard"><strong>Open the beta</strong></a> ·
   <a href="#the-workspace-in-seven-views">Product tour</a> ·
   <a href="docs/briefs/overview.md">Project overview</a> ·
+  <a href="https://www.arcwellfi.com/roadmap">Roadmap</a> ·
   <a href="#run-locally">Quick start</a> ·
   <a href="https://x.com/ARCWELLFI">Follow on X</a>
 </p>
@@ -237,11 +238,18 @@ for which views belong to the public dashboard.
 
 ## Read and share
 
+Explore the [interactive ASCII roadmap](https://www.arcwellfi.com/roadmap) or read
+the [whitepaper](https://www.arcwellfi.com/whitepaper) for the product thesis,
+architecture and future direction. Planned capabilities are labeled separately
+from the available MVP.
+
 | Brief                                          | What it explains                                                        |
 | ---------------------------------------------- | ----------------------------------------------------------------------- |
 | [Project overview](docs/briefs/overview.md)    | The MVP's purpose, customer value, and evaluation criteria              |
 | [Frontend experience](docs/briefs/frontend.md) | The original paper-investing journey and interface technology           |
 | [Backend architecture](docs/briefs/backend.md) | Application delivery, paper-account data flow, and operating boundaries |
+
+[Whitepaper source](docs/WHITEPAPER.md) · [Product roadmap](docs/PRODUCT-ROADMAP.md)
 
 ## Help shape the core experience
 

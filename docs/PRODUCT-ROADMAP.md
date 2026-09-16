@@ -1,0 +1,79 @@
+# ARCWELL product roadmap
+
+September 16, 2026 · Version 1.0
+
+From understanding an asset to acting with confidence. A staged path from the working beta to connected investing on Arc.
+
+Stages show priorities and release dependencies, not committed launch dates.
+
+## 01 Foundation
+
+**Available**
+
+A focused investing workspace pairs live Arc asset discovery with a separate paper account. Explore sourced asset information, practice a decision, and inspect what changes in your portfolio.
+
+- Arc asset search with source links and observation timestamps
+- Browser-local paper holdings, orders, and activity
+- Interactive charts, account exports, and clear data labels
+
+**Release boundary:** Keep live research and synthetic paper-account data visibly separate. A discovered token is not automatically an investable stock.
+
+## 02 Arc connections
+
+**Available**
+
+Connect a wallet, verify the Arc network, inspect native USDC balances and review receipt observations. Prepare a contract-verified token pair and continue to the official Uniswap interface for a live quote and final review.
+
+- Wallet observations, native USDC transfer gas estimates and receipt checks
+- Provider failure states and explicitly labeled history fallback
+- Arc Mainnet token-pair review and official Uniswap handoff
+
+**Release boundary:** Final quotes, slippage, approvals and signatures are handled by the external provider. Token swaps do not establish stock backing or stock execution.
+
+## 03 Connected investing
+
+**Planned**
+
+Connect a small, genuinely supported asset catalog to persistent accounts and a provider-backed investing workflow. This stage depends on an issuer and venue that support the intended network and customers.
+
+- Verified instruments, eligibility and provider onboarding
+- Reliable prices, expiring quotes, fees and order review
+- Funding, durable order history and reconciled fills
+
+**Release boundary:** Confirm issuer and venue access, customer eligibility, custody responsibilities and failure recovery. A network receipt alone is not proof of a stock fill.
+
+## 04 Portfolio intelligence
+
+**Planned**
+
+Turn account activity into a clearer understanding of progress. Add richer portfolio tools after the data and account foundations can support them reliably.
+
+- Watchlists and user-controlled alerts
+- Asset comparisons and distribution history
+- Performance reporting that accounts for cash flows and fees
+
+**Release boundary:** Use attributed, timestamped inputs and complete account history. Distinguish realized outcomes from illustrative calculations.
+
+## 05 Advanced research
+
+**Planned**
+
+Release the full Risk and Quant workspaces as an advanced layer. Spatial views and scenario tools should make assumptions easier to inspect, while keeping the core investing journey focused.
+
+- Dedicated risk and portfolio stress views
+- 3D and 4D research explorers and option surfaces
+- Allocation experiments and pairs research tools
+
+**Release boundary:** Validate models, expose assumptions and limitations, and test usability before enabling the advanced workspaces. Models are not predictions or return guarantees.
+
+## 06 Institutional tools
+
+**Exploratory**
+
+Explore evidence workflows and APIs where customer demand justifies them. This is a separate institutional direction, shaped by real partner needs rather than additional tabs in the retail workspace.
+
+- Permissioned evidence and review workflows
+- Traceable corrections and access boundaries
+- Scoped APIs for validated institutional use cases
+
+**Release boundary:** Validate customer demand, authorization boundaries and the review model first. An onchain fingerprint verifies a match, not the truth of an underlying claim.
