@@ -62,7 +62,13 @@ function inspect(where, bytes, path = '') {
     )) {
       const allowed =
         match[1] === 'github.com' ? ['ArcwellLabs', 'actions', 'polyformproject'] : ['ARCWELLFI'];
-      if (!allowed.includes(match[2])) fail(where, 'unapproved profile or repository owner');
+      // Approved issuer source: permit this repository URL only, not personal profiles.
+      const issuerSource =
+        /^https:\/\/github\.com\/ondoprotocol\/ondo-global-markets-token-list(?=[\s"'<>)]|$)/.test(
+          data.slice(match.index),
+        );
+      if (!allowed.includes(match[2]) && !issuerSource)
+        fail(where, 'unapproved profile or repository owner');
     }
   }
 }

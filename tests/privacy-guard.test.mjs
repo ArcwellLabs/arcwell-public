@@ -97,3 +97,21 @@ test('rejects personal attribution in commit messages', () =>
     );
     assert.notEqual(guard('--message', join(dir, 'message')).status, 0);
   }));
+
+test('accepts only the reviewed issuer catalog URL and still blocks unrelated profiles', () =>
+  fixture(({ dir, git, guard }) => {
+    const base = ['https://github.com', 'ondoprotocol'].join('/');
+    writeFileSync(join(dir, 'source.txt'), base + '/ondo-global-markets-token-list');
+    git('add', 'source.txt');
+    assert.equal(guard().status, 0);
+    for (const suffix of [
+      '',
+      '/other',
+      '/ondo-global-markets-token-list-extra',
+      '/ondo-global-markets-token-list/private',
+    ]) {
+      writeFileSync(join(dir, 'source.txt'), base + suffix);
+      git('add', 'source.txt');
+      assert.notEqual(guard().status, 0);
+    }
+  }));
