@@ -18,6 +18,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as StudioRouteImport } from './routes/studio'
 import { Route as WhitepaperRouteImport } from './routes/whitepaper'
 import { Route as ApiAssetsRouteImport } from './routes/api.assets'
+import { Route as ApiStockTradingRouteImport } from './routes/api.stock-trading'
 import { Route as ArticlesIndexRouteImport } from './routes/articles/index'
 import { Route as ArticlesSlugRouteImport } from './routes/articles/$slug'
 
@@ -66,6 +67,11 @@ const ApiAssetsRoute = ApiAssetsRouteImport.update({
   path: '/api/assets',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiStockTradingRoute = ApiStockTradingRouteImport.update({
+  id: '/api/stock-trading',
+  path: '/api/stock-trading',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ArticlesIndexRoute = ArticlesIndexRouteImport.update({
   id: '/articles/',
   path: '/articles/',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/studio': typeof StudioRoute
   '/whitepaper': typeof WhitepaperRoute
   '/api/assets': typeof ApiAssetsRoute
+  '/api/stock-trading': typeof ApiStockTradingRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/articles/': typeof ArticlesIndexRoute
 }
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/studio': typeof StudioRoute
   '/whitepaper': typeof WhitepaperRoute
   '/api/assets': typeof ApiAssetsRoute
+  '/api/stock-trading': typeof ApiStockTradingRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/articles': typeof ArticlesIndexRoute
 }
@@ -114,6 +122,7 @@ export interface FileRoutesById {
   '/studio': typeof StudioRoute
   '/whitepaper': typeof WhitepaperRoute
   '/api/assets': typeof ApiAssetsRoute
+  '/api/stock-trading': typeof ApiStockTradingRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/articles/': typeof ArticlesIndexRoute
 }
@@ -129,6 +138,7 @@ export interface FileRouteTypes {
     | '/studio'
     | '/whitepaper'
     | '/api/assets'
+    | '/api/stock-trading'
     | '/articles/$slug'
     | '/articles/'
   fileRoutesByTo: FileRoutesByTo
@@ -142,6 +152,7 @@ export interface FileRouteTypes {
     | '/studio'
     | '/whitepaper'
     | '/api/assets'
+    | '/api/stock-trading'
     | '/articles/$slug'
     | '/articles'
   id:
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/studio'
     | '/whitepaper'
     | '/api/assets'
+    | '/api/stock-trading'
     | '/articles/$slug'
     | '/articles/'
   fileRoutesById: FileRoutesById
@@ -169,6 +181,7 @@ export interface RootRouteChildren {
   StudioRoute: typeof StudioRoute
   WhitepaperRoute: typeof WhitepaperRoute
   ApiAssetsRoute: typeof ApiAssetsRoute
+  ApiStockTradingRoute: typeof ApiStockTradingRoute
   ArticlesSlugRoute: typeof ArticlesSlugRoute
   ArticlesIndexRoute: typeof ArticlesIndexRoute
 }
@@ -238,6 +251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAssetsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/stock-trading': {
+      id: '/api/stock-trading'
+      path: '/api/stock-trading'
+      fullPath: '/api/stock-trading'
+      preLoaderRoute: typeof ApiStockTradingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/articles/': {
       id: '/articles/'
       path: '/articles'
@@ -265,6 +285,7 @@ const rootRouteChildren: RootRouteChildren = {
   StudioRoute: StudioRoute,
   WhitepaperRoute: WhitepaperRoute,
   ApiAssetsRoute: ApiAssetsRoute,
+  ApiStockTradingRoute: ApiStockTradingRoute,
   ArticlesSlugRoute: ArticlesSlugRoute,
   ArticlesIndexRoute: ArticlesIndexRoute,
 }

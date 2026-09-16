@@ -29,9 +29,11 @@ function useTorontoTime() {
 export default function Navbar({
   dashboard = false,
   arcWorkspace = false,
+  stockWorkspace = false,
 }: {
   dashboard?: boolean;
   arcWorkspace?: boolean;
+  stockWorkspace?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -69,8 +71,14 @@ export default function Navbar({
           </Link>
 
           <div className="hidden font-mono text-xs uppercase tracking-[0.18em] text-white/60 lg:block">
-            {arcWorkspace ? "Arc workspace" : dashboard ? "Paper investing beta" : "ARC Network"} ·{" "}
-            {time} EST
+            {stockWorkspace
+              ? "Wallet trading"
+              : arcWorkspace
+                ? "Arc workspace"
+                : dashboard
+                  ? "Paper investing beta"
+                  : "ARC Network"}{" "}
+            · {time} EST
           </div>
 
           <nav className="flex items-center gap-7" aria-label="Primary">

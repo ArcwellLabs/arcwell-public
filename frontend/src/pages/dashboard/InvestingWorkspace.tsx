@@ -40,6 +40,7 @@ import { chartShade, pct, usd } from "@/lib/quant-format";
 import { dashboardViewNumber, isDashboardViewEnabled } from "@/lib/dashboard-release";
 import "./investing.css";
 import AssetResearch from "./AssetResearch";
+import TokenizedStocks from "./TokenizedStocks";
 import AssetLogo from "@/components/AssetLogo";
 import AssetSearchField from "@/components/AssetSearchField";
 
@@ -76,24 +77,42 @@ export default function InvestingWorkspace(props: Props) {
       ]),
       ["USDC", book.cash, 1, book.cash],
     ]);
+  const terminal = view === "markets" || view === "trading" || view === "stocks";
   return (
     <div className="quant-workspace">
-      <header className="q-view-header">
-        <div>
-          <p className="q-eyebrow">[{dashboardViewNumber(view)}] ARCWELL control room</p>
-          <h1>{title}</h1>
-          <p className="q-description">{description}</p>
-        </div>
-        <div className="q-header-actions">
-          <span className="q-badge">
-            {view === "markets" ? "Connected market sources" : "Synthetic market data"}
-          </span>
-          <button className="q-button" onClick={csv}>
-            <Download size={13} /> Export positions
-          </button>
-        </div>
-      </header>
-      {props.storageNote ? (
+      {terminal ? (
+        <header className="research-mode-header">
+          <h1>Market intelligence</h1>
+          <div className="research-mode-switch" role="group" aria-label="Workspace mode">
+            <button aria-pressed={view === "stocks"} onClick={() => onNavigate("stocks")}>
+              Tokenized stocks
+            </button>
+            <button aria-pressed={view === "markets"} onClick={() => onNavigate("markets")}>
+              Arc research
+            </button>
+            <button aria-pressed={view === "trading"} onClick={() => onNavigate("trading")}>
+              Paper trading
+            </button>
+          </div>
+        </header>
+      ) : (
+        <header className="q-view-header">
+          <div>
+            <p className="q-eyebrow">[{dashboardViewNumber(view)}] ARCWELL control room</p>
+            <h1>{title}</h1>
+            <p className="q-description">{description}</p>
+          </div>
+          <div className="q-header-actions">
+            <span className="q-badge">
+              {view === "markets" ? "Connected market sources" : "Synthetic market data"}
+            </span>
+            <button className="q-button" onClick={csv}>
+              <Download size={13} /> Export positions
+            </button>
+          </div>
+        </header>
+      )}
+      {props.storageNote && view !== "stocks" ? (
         <p className="q-notice" role="status">
           {props.storageNote}
         </p>
@@ -102,6 +121,8 @@ export default function InvestingWorkspace(props: Props) {
         <Portfolio {...props} />
       ) : view === "markets" ? (
         <AssetResearch />
+      ) : view === "stocks" ? (
+        <TokenizedStocks />
       ) : view === "trading" ? (
         <Trading {...props} />
       ) : view === "risk" ? (
@@ -113,24 +134,26 @@ export default function InvestingWorkspace(props: Props) {
       ) : (
         <Ledger {...props} />
       )}
-      <footer className="q-workspace-footer">
-        <span>
-          {view === "markets"
-            ? "Arc asset research / source-linked observations"
-            : "Research workspace / illustrative instruments"}
-        </span>
-        <button
-          onClick={() => onNavigate(isDashboardViewEnabled("network") ? "network" : "settings")}
-        >
-          {isDashboardViewEnabled("network") ? "Arc Testnet tools" : "About this beta"}{" "}
-          <ArrowUpRight size={12} />
-        </button>
-        <span>
-          {view === "markets"
-            ? "Coverage varies by provider. Prices are observations, not executable quotes."
-            : "Prices and charts are synthetic. No brokerage or execution provider is connected."}
-        </span>
-      </footer>
+      {view !== "markets" && view !== "stocks" && (
+        <footer className="q-workspace-footer">
+          <span>
+            {view === "markets"
+              ? "Arc asset research / source-linked observations"
+              : "Research workspace / illustrative instruments"}
+          </span>
+          <button
+            onClick={() => onNavigate(isDashboardViewEnabled("network") ? "network" : "settings")}
+          >
+            {isDashboardViewEnabled("network") ? "Arc Testnet tools" : "About this beta"}{" "}
+            <ArrowUpRight size={12} />
+          </button>
+          <span>
+            {view === "markets"
+              ? "Coverage varies by provider. Prices are observations, not executable quotes."
+              : "Prices and charts are synthetic. No brokerage or execution provider is connected."}
+          </span>
+        </footer>
+      )}
     </div>
   );
 }

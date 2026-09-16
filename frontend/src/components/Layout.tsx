@@ -23,6 +23,8 @@ export default function Layout() {
     dashboard && new URLSearchParams(location.searchStr).get("view") === "markets";
   const swapWorkspace = dashboard && new URLSearchParams(location.searchStr).get("view") === "swap";
   const arcWorkspace = dashboard && new URLSearchParams(location.searchStr).get("view") === "arc";
+  const stockWorkspace =
+    dashboard && new URLSearchParams(location.searchStr).get("view") === "stocks";
   const [animKey, setAnimKey] = useState(location.pathname);
   const [isPending, startAnim] = useTransition();
 
@@ -35,7 +37,11 @@ export default function Layout() {
       <Preloader />
       <SmoothScroll />
       <Cursor />
-      <Navbar dashboard={dashboard} arcWorkspace={arcWorkspace || swapWorkspace} />
+      <Navbar
+        dashboard={dashboard}
+        arcWorkspace={arcWorkspace || swapWorkspace || assetResearch}
+        stockWorkspace={stockWorkspace}
+      />
       <main className="pt-[72px]">
         <motion.div
           key={animKey}
@@ -65,13 +71,15 @@ export default function Layout() {
         <footer className="border-t border-hairline px-6 py-7 text-xs text-ink-muted md:px-10">
           <div className="mx-auto flex max-w-[1680px] flex-wrap items-center justify-between gap-4">
             <span>
-              {swapWorkspace
-                ? "ARCWELL / Arc token swaps · Execution on Uniswap"
-                : arcWorkspace
-                  ? "ARCWELL / Arc wallet & network reads"
-                  : assetResearch
-                    ? "ARCWELL / Arc asset research · Sourced data"
-                    : "ARCWELL / Paper investing beta · Synthetic data"}
+              {stockWorkspace
+                ? "ARCWELL / Tokenized equities · Ethereum"
+                : swapWorkspace
+                  ? "ARCWELL / Arc token swaps · Execution on Uniswap"
+                  : arcWorkspace
+                    ? "ARCWELL / Arc wallet & network reads"
+                    : assetResearch
+                      ? "ARCWELL / Arc asset research · Sourced data"
+                      : "ARCWELL / Paper investing beta · Synthetic data"}
             </span>
             <Link
               to="/dashboard"

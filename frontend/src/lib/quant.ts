@@ -471,6 +471,7 @@ export const INVESTING_VIEWS = [
   "portfolio",
   "markets",
   "trading",
+  "stocks",
   "risk",
   "quant",
   "funding",

@@ -1,0 +1,249 @@
+.st-workspace {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: clamp(20px, 4vw, 48px);
+  color: var(--color-foreground);
+}
+.st-heading {
+  max-width: 650px;
+  margin-bottom: 32px;
+}
+.st-heading h2 {
+  font-size: clamp(28px, 4vw, 44px);
+  letter-spacing: -0.055em;
+  line-height: 1.1;
+  margin: 12px 0;
+}
+.st-heading > p:last-child {
+  color: var(--color-muted-foreground);
+  line-height: 1.7;
+  font-size: 14px;
+}
+.st-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  gap: 48px;
+  align-items: start;
+}
+.st-ticket {
+  border: 1px solid var(--color-border);
+  padding: 24px;
+  border-radius: 16px;
+  background: var(--color-card);
+}
+.st-ticket-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  color: var(--color-muted-foreground);
+  margin-bottom: 28px;
+}
+.st-ticket label {
+  display: block;
+  font-size: 12px;
+  margin: 18px 0 10px;
+}
+.st-ticket input,
+.st-ticket select {
+  display: block;
+  width: 100%;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 14px;
+  color: inherit;
+  font-size: 15px;
+  min-height: 48px;
+}
+.st-ticket input {
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+.st-direction {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 20px;
+}
+.st-direction button {
+  flex: 1;
+  padding: 9px;
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  font-size: 12px;
+}
+.st-direction button[aria-pressed="true"] {
+  background: var(--color-foreground);
+  color: var(--color-background);
+}
+.st-workspace button {
+  cursor: pointer;
+}
+.st-workspace button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.st-workspace :is(button, input, select, a):focus-visible {
+  outline: 2px solid var(--color-foreground);
+  outline-offset: 4px;
+}
+.st-primary,
+.st-wallet {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 8px;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.st-primary {
+  background: var(--color-foreground);
+  color: var(--color-background);
+}
+.st-wallet {
+  border: 1px solid var(--color-border);
+}
+.st-caption {
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--color-muted-foreground);
+  overflow-wrap: anywhere;
+  margin: 10px 0;
+}
+.st-context {
+  padding: 16px 0;
+}
+.st-asset-monogram {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  font-size: 30px;
+  margin-bottom: 24px;
+}
+.st-context h3 {
+  font-size: 28px;
+  letter-spacing: -0.04em;
+  margin: 10px 0 16px;
+}
+.st-context > p:not(.q-eyebrow) {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--color-muted-foreground);
+  margin-bottom: 24px;
+}
+.st-context a,
+.st-order a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  margin-top: 16px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.st-context-note {
+  display: flex;
+  gap: 12px;
+  border-top: 1px solid var(--color-border);
+  padding-top: 24px;
+  margin-top: 32px;
+}
+.st-context-note svg {
+  flex-shrink: 0;
+}
+.st-context-note p {
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--color-muted-foreground);
+}
+.st-notice {
+  padding: 18px 20px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  margin-bottom: 24px;
+  font-size: 13px;
+}
+.st-notice p {
+  font-size: 12px;
+  line-height: 1.7;
+  margin-top: 6px;
+  color: var(--color-muted-foreground);
+}
+.st-review {
+  border-top: 1px solid var(--color-border);
+  margin-top: 24px;
+  padding-top: 24px;
+}
+.st-review dl {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 14px;
+  font-size: 12px;
+  margin: 20px 0;
+}
+.st-review dt {
+  color: var(--color-muted-foreground);
+}
+.st-review dd {
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.st-error {
+  font-size: 12px;
+  line-height: 1.7;
+  margin-top: 18px;
+  border-left: 2px solid currentColor;
+  padding-left: 12px;
+}
+.st-order {
+  border: 1px solid var(--color-border);
+  padding: 24px;
+  border-radius: 12px;
+  margin-top: 24px;
+}
+.st-order h3 {
+  font-size: 22px;
+  margin: 12px 0;
+  text-transform: capitalize;
+}
+.st-order > p {
+  font-size: 12px;
+  line-height: 1.8;
+}
+.st-order button {
+  border: 1px solid var(--color-border);
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin: 18px 12px 0 0;
+  font-size: 12px;
+}
+@media (max-width: 700px) {
+  .st-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .st-ticket {
+    padding: 18px;
+  }
+  .st-workspace {
+    padding: 24px 14px;
+  }
+  .st-context {
+    border-top: 1px solid var(--color-border);
+    padding-top: 24px;
+  }
+  .st-ticket-head {
+    font-size: 9px;
+  }
+  .st-review dl {
+    grid-template-columns: 1fr 1fr;
+  }
+}

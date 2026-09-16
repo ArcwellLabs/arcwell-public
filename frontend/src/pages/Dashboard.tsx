@@ -44,7 +44,7 @@ import InvestingWorkspace from "@/pages/dashboard/InvestingWorkspace";
 import { usePaperBook } from "@/hooks/usePaperBook";
 import { INVESTING_VIEWS } from "@/lib/quant";
 import LegacyAnalytics from "@/pages/dashboard/LegacyAnalytics";
-import { ChartCandlestick, ChartNoAxesCombined, Orbit, Wallet, Scale, History } from "lucide-react";
+import { ChartCandlestick, Orbit, Wallet, Scale, History } from "lucide-react";
 
 interface Category {
   id: string;
@@ -54,7 +54,6 @@ interface Category {
 
 const CATEGORIES: Category[] = [
   { id: "portfolio", label: "Portfolio", icon: LayoutDashboard },
-  { id: "markets", label: "Markets", icon: ChartNoAxesCombined },
   { id: "trading", label: "Trade", icon: ChartCandlestick },
   { id: "swap", label: "Swap", icon: Coins },
   { id: "risk", label: "Risk", icon: Scale },
@@ -89,6 +88,7 @@ export default function Dashboard() {
   const navigate = useNavigate({ from: "/dashboard" });
   const raw = search.view ?? "portfolio";
   const view = resolveDashboardView(raw);
+  const terminal = view === "markets" || view === "trading" || view === "stocks";
 
   const setView = (id: string) => {
     void navigate({
@@ -164,7 +164,13 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-bg">
+    <div
+      className={cn(
+        "min-h-[100dvh] bg-bg",
+        terminal && "dashboard-terminal",
+        view === "markets" && "dashboard-research",
+      )}
+    >
       {/* Top status strip */}
       <div className="border-b border-hairline bg-surface/60">
         <div className="mx-auto flex w-full max-w-[1680px] flex-wrap items-center justify-between gap-x-6 gap-y-2 px-6 py-3 md:px-10 xl:px-14">
@@ -176,32 +182,40 @@ export default function Dashboard() {
               ARCWELL{" "}
               <span className="text-faint">
                 /{" "}
-                {view === "swap"
-                  ? "Arc swaps"
-                  : view === "arc"
-                    ? "Arc workspace"
-                    : "paper investing beta"}
+                {view === "stocks"
+                  ? "Tokenized stocks"
+                  : view === "swap"
+                    ? "Arc swaps"
+                    : view === "arc"
+                      ? "Arc workspace"
+                      : view === "markets"
+                        ? "market intelligence"
+                        : "paper investing beta"}
               </span>
             </p>
           </div>
           <div className="flex items-center gap-4">
             <p className="hidden font-mono text-[11px] uppercase tracking-[0.14em] text-faint sm:block">
-              {view === "swap"
-                ? "Execution through Uniswap"
-                : view === "arc"
-                  ? "Wallet and network inspection"
-                  : view === "markets"
-                    ? "Asset discovery · no real execution"
-                    : "Practice account · no real execution"}
+              {view === "stocks"
+                ? "Wallet authorization"
+                : view === "swap"
+                  ? "Execution through Uniswap"
+                  : view === "arc"
+                    ? "Wallet and network inspection"
+                    : view === "markets"
+                      ? "Asset discovery · no real execution"
+                      : "Practice account · no real execution"}
             </p>
             <span className="rounded-full border border-hairline px-3 py-1 font-mono text-[10px] text-ink-muted">
-              {view === "swap"
-                ? "Arc Mainnet"
-                : view === "arc"
-                  ? "Onchain reads"
-                  : view === "markets"
-                    ? "Sourced asset data"
-                    : "Sample data"}
+              {view === "stocks"
+                ? "Ethereum Mainnet"
+                : view === "swap"
+                  ? "Arc Mainnet"
+                  : view === "arc"
+                    ? "Onchain reads"
+                    : view === "markets"
+                      ? "Sourced asset data"
+                      : "Sample data"}
             </span>
           </div>
         </div>
@@ -216,13 +230,14 @@ export default function Dashboard() {
           >
             <p className="kicker mb-4 px-3">Categories</p>
             {VISIBLE_CATEGORIES.map((c, i) => {
-              const active = view === c.id;
+              const active =
+                view === c.id || ((view === "markets" || view === "stocks") && c.id === "trading");
               const Icon = c.icon;
               return (
                 <button
                   key={c.id}
                   type="button"
-                  onClick={() => setView(c.id)}
+                  onClick={() => setView(c.id === "trading" ? "markets" : c.id)}
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "group flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors duration-300",
@@ -269,13 +284,14 @@ export default function Dashboard() {
             className="touch-scroll flex gap-1 overflow-x-auto px-4 py-3"
           >
             {VISIBLE_CATEGORIES.map((c) => {
-              const active = view === c.id;
+              const active =
+                view === c.id || ((view === "markets" || view === "stocks") && c.id === "trading");
               const Icon = c.icon;
               return (
                 <button
                   key={c.id}
                   type="button"
-                  onClick={() => setView(c.id)}
+                  onClick={() => setView(c.id === "trading" ? "markets" : c.id)}
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-4 font-mono text-[11px] uppercase tracking-[0.1em] transition-colors duration-300",
@@ -297,15 +313,17 @@ export default function Dashboard() {
           aria-label="Dashboard workspace"
           className="min-w-0 flex-1 px-6 py-8 md:px-10 lg:py-10 xl:px-14"
         >
-          <p className="mb-6 rounded-xl border border-hairline bg-surface/50 px-5 py-4 text-xs leading-relaxed text-ink-muted">
-            {view === "swap"
-              ? "Review the asset pair here, then get a quote and authorize on Uniswap. External swaps do not update your paper account."
-              : view === "arc"
-                ? "Onchain balances and receipts are read from the selected Arc network. Stock purchases are not connected yet."
-                : view === "markets"
-                  ? "Search Arc assets by name, symbol, or contract address. Check each result’s network, source, and observation time. Trading remains a separate paper simulation."
-                  : "Prices and starting holdings are samples. Paper orders update only this browser’s account. No real assets or funds move."}
-          </p>
+          {view !== "markets" && view !== "stocks" && (
+            <p className="mb-6 rounded-xl border border-hairline bg-surface/50 px-5 py-4 text-xs leading-relaxed text-ink-muted">
+              {view === "swap"
+                ? "Review the asset pair here, then get a quote and authorize on Uniswap. External swaps do not update your paper account."
+                : view === "arc"
+                  ? "Onchain balances and receipts are read from the selected Arc network. Stock purchases are not connected yet."
+                  : view === "markets"
+                    ? "Search Arc assets by name, symbol, or contract address. Check each result’s network, source, and observation time. Trading remains a separate paper simulation."
+                    : "Prices and starting holdings are samples. Paper orders update only this browser’s account. No real assets or funds move."}
+            </p>
+          )}
           <motion.div
             key={view}
             initial={{ opacity: 0, y: 16 }}
