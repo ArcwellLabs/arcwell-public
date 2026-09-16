@@ -147,11 +147,7 @@ function WalletSession({ children }: PropsWithChildren) {
       <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Portal>
           <Dialog.Overlay className="aw-wallet-overlay" />
-          <Dialog.Content
-            data-lenis-prevent
-            className="aw-wallet-dialog"
-            onOpenAutoFocus={() => setError("")}
-          >
+          <Dialog.Content data-lenis-prevent className="aw-wallet-dialog">
             <div className="aw-wallet-kicker">
               <Wallet size={16} /> ARCWELL / WALLET
             </div>
