@@ -2156,3 +2156,49 @@
     padding-block: 18px;
   }
 }
+
+/* Connected search spans the full issuer catalog and Arc discovery API. */
+.aw-search-results {
+  max-height: min(680px, calc(100dvh - 100px));
+  overflow-y: auto;
+}
+.aw-search-results button > span:first-child {
+  min-width: 0;
+  text-align: left;
+}
+.aw-search-results strong {
+  font-size: 13px;
+  font-weight: 500;
+}
+.aw-search-results small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 3px;
+}
+.aw-search-results .aw-search-kinds {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--aw-line);
+  padding-bottom: 8px;
+}
+.aw-search-results .aw-search-kinds button {
+  padding: 8px;
+  justify-content: center;
+  font-size: 11px;
+}
+.aw-search-kinds button[aria-pressed="true"] {
+  background: #ededea;
+  color: #0a0a0b;
+}
+.aw-search-chain {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font:
+    10px "JetBrains Mono",
+    monospace;
+  color: #8b8b93;
+  flex-shrink: 0;
+}

@@ -4,7 +4,10 @@ import { isAssetAddress } from "../../../src/asset-data";
 import Dashboard from "@/pages/Dashboard";
 
 export const Route = createFileRoute("/dashboard")({
-  validateSearch: (search: Record<string, unknown>): { view?: string; asset?: string } => ({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { view?: string; asset?: string; q?: string } => ({
+    q: typeof search["q"] === "string" ? search["q"].trim().slice(0, 100) : undefined,
     asset:
       typeof search["asset"] === "string" && isAssetAddress(search["asset"])
         ? search["asset"].toLowerCase()
@@ -27,13 +30,13 @@ export const Route = createFileRoute("/dashboard")({
       {
         name: "description",
         content:
-          "Explore Arc markets, prepare Uniswap swaps, practice paper trading, and inspect wallet balances and receipts.",
+          "Explore Arc market data, trade tokenized stocks with your wallet, and inspect balances and receipts.",
       },
       { property: "og:title", content: "ARCWELL — Investing & Research" },
       {
         property: "og:description",
         content:
-          "Markets, paper portfolios and live Arc network reads. Real stock execution is not yet connected.",
+          "Sourced Arc markets, issuer-listed stocks and ETFs, wallet trading, and onchain network reads.",
       },
     ],
   }),

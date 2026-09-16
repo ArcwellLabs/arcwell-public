@@ -39,8 +39,13 @@ export default function Dashboard() {
   const view = resolveDashboardView(raw);
 
   const setView = (id: string) => {
+    const next = resolveDashboardView(id);
+    const keepStock = ["stocks", "trading"].includes(view) && ["stocks", "trading"].includes(next);
     void navigate({
-      search: resolveDashboardView(id) === "portfolio" ? {} : { view: resolveDashboardView(id) },
+      search:
+        next === "portfolio"
+          ? {}
+          : { view: next, ...(keepStock ? { asset: search.asset, q: search.q } : {}) },
       resetScroll: false,
     });
   };
@@ -62,6 +67,8 @@ export default function Dashboard() {
       return (
         <InvestingWorkspace
           view={view}
+          initialAddress={search.asset}
+          initialQuery={search.q}
           onNavigate={setView}
           symbol={symbol}
           setSymbol={setSymbol}
@@ -113,7 +120,16 @@ export default function Dashboard() {
 
   return (
     <WorkspacePreferencesProvider>
-      <WorkspaceShell view={view} onNavigate={setView} onInstrument={setSymbol}>
+      <WorkspaceShell
+        view={view}
+        onNavigate={setView}
+        onOpenAsset={(view, asset) => {
+          void navigate({ search: { view, asset } });
+        }}
+        onSearch={(view, q) => {
+          void navigate({ search: { view, q } });
+        }}
+      >
         {renderView()}
       </WorkspaceShell>
     </WorkspacePreferencesProvider>

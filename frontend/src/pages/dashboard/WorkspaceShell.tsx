@@ -12,7 +12,9 @@ import {
   X,
 } from "lucide-react";
 import WalletButton from "@/components/wallet/WalletButton";
-import { INSTRUMENTS } from "@/lib/quant";
+import { searchStocks } from "../../../../src/workspace-search";
+import type { AssetSearch } from "../../../../src/asset-data";
+import { useWalletSession } from "@/lib/wallet-session";
 import { useWorkspacePreferences } from "./WorkspacePreferences";
 import "./workspace.css";
 
@@ -37,18 +39,54 @@ const destinations = [
 export default function WorkspaceShell({
   view,
   onNavigate,
-  onInstrument,
+  onOpenAsset,
+  onSearch,
   children,
 }: {
   view: string;
   onNavigate: (view: string) => void;
-  onInstrument: (symbol: string) => void;
+  onOpenAsset: (view: "stocks" | "markets", address: string) => void;
+  onSearch: (view: "stocks" | "markets", query: string) => void;
   children: ReactNode;
 }) {
   const { preferences } = useWorkspacePreferences();
   const [clock, setClock] = useState("");
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const [tokens, setTokens] = useState<AssetSearch | null>(null);
+  const [tokenError, setTokenError] = useState("");
+  const [searching, setSearching] = useState(false);
+  const [searchKind, setSearchKind] = useState("All");
+  const { locked } = useWalletSession();
+  const term = query.trim();
+  useEffect(() => {
+    setTokens(null);
+    setTokenError("");
+    setSearching(false);
+    if (!open || term.length < 2 || searchKind === "Stocks & ETFs") return;
+    const controller = new AbortController();
+    setSearching(true);
+    const timer = window.setTimeout(async () => {
+      try {
+        const response = await fetch(
+          "/api/assets?" + new URLSearchParams({ network: "mainnet", q: term }),
+          { signal: controller.signal },
+        );
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Token search is unavailable.");
+        if (!controller.signal.aborted) setTokens(data);
+      } catch (error) {
+        if (!controller.signal.aborted)
+          setTokenError(error instanceof Error ? error.message : "Token search is unavailable.");
+      } finally {
+        if (!controller.signal.aborted) setSearching(false);
+      }
+    }, 450);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [term, open, searchKind]);
   const input = useRef<HTMLInputElement>(null);
   const search = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -92,6 +130,7 @@ export default function WorkspaceShell({
     };
   }, []);
   const navigate = (id: string) => {
+    if (locked) return;
     onNavigate(id);
     setOpen(false);
     setQuery("");
@@ -99,11 +138,19 @@ export default function WorkspaceShell({
   const pages = destinations.filter((item) =>
     item.label.toLowerCase().includes(query.toLowerCase()),
   );
-  const assets = query.trim()
-    ? INSTRUMENTS.filter((a) =>
-        `${a.symbol} ${a.name}`.toLowerCase().includes(query.toLowerCase()),
-      ).slice(0, 5)
-    : [];
+  const stocks = term && searchKind !== "Coins & tokens" ? searchStocks(term) : [];
+  const openAsset = (destination: "stocks" | "markets", address: string) => {
+    if (locked) return;
+    onOpenAsset(destination, address);
+    setOpen(false);
+    setQuery("");
+  };
+  const browse = (destination: "stocks" | "markets") => {
+    if (locked) return;
+    onSearch(destination, term);
+    setOpen(false);
+    setQuery("");
+  };
   return (
     <div
       className="aw-desk"
@@ -123,6 +170,7 @@ export default function WorkspaceShell({
             <button
               key={id}
               type="button"
+              disabled={locked}
               onClick={() => navigate(id)}
               aria-current={
                 view === id || (id === "markets" && ["trading", "stocks"].includes(view))
@@ -158,6 +206,7 @@ export default function WorkspaceShell({
             aria-expanded={open}
             aria-controls="workspace-search-results"
             placeholder="Search assets, research, or markets…"
+            maxLength={100}
             value={query}
             onFocus={() => setOpen(true)}
             onChange={(e) => {
@@ -174,33 +223,93 @@ export default function WorkspaceShell({
           )}
           {open && (
             <div id="workspace-search-results" className="aw-search-results">
-              <p>Workspace</p>
+              <div className="aw-search-kinds" role="group" aria-label="Search category">
+                {["All", "Stocks & ETFs", "Coins & tokens"].map((kind) => (
+                  <button
+                    key={kind}
+                    aria-pressed={searchKind === kind}
+                    onClick={() => setSearchKind(kind)}
+                  >
+                    {kind}
+                  </button>
+                ))}
+              </div>
+              {pages.length > 0 && <p>Workspace</p>}
               {pages.map((page) => (
-                <button key={page.id} onClick={() => navigate(page.id)}>
+                <button key={page.id} disabled={locked} onClick={() => navigate(page.id)}>
                   {page.label}
                   <ArrowUpRight size={14} />
                 </button>
               ))}
-              {assets.length > 0 && <p>Instruments</p>}
-              {assets.map((asset) => (
-                <button
-                  key={asset.symbol}
-                  onClick={() => {
-                    onInstrument(asset.symbol);
-                    navigate("trading");
-                  }}
-                >
-                  <span>
-                    {asset.symbol} <small>{asset.name}</small>
-                  </span>
-                  <ArrowUpRight size={14} />
-                </button>
-              ))}
-              {!pages.length && !assets.length && (
+              {stocks.length > 0 && (
+                <>
+                  <p>
+                    Stocks & ETFs · {stocks.length} {stocks.length === 1 ? "match" : "matches"}
+                  </p>
+                  {stocks.slice(0, 8).map((asset) => (
+                    <button
+                      key={asset.address}
+                      disabled={locked}
+                      onClick={() => openAsset("stocks", asset.address)}
+                    >
+                      <span>
+                        <strong>{asset.symbol}</strong>
+                        <small>{asset.name}</small>
+                      </span>
+                      <span className="aw-search-chain">
+                        Ethereum <ArrowUpRight size={14} />
+                      </span>
+                    </button>
+                  ))}
+                  <button onClick={() => browse("stocks")} disabled={locked}>
+                    View {stocks.length === 1 ? "stock" : `all ${stocks.length} stocks & ETFs`}{" "}
+                    <ArrowUpRight size={14} />
+                  </button>
+                </>
+              )}
+              {term.length >= 2 && searchKind !== "Stocks & ETFs" && (
+                <>
+                  <p>Coins & tokens · Arc Mainnet</p>
+                  {searching && <p role="status">Searching connected sources…</p>}
+                  {tokenError && <p role="status">{tokenError}</p>}
+                  {tokens?.items.slice(0, 8).map((asset) => (
+                    <button
+                      key={asset.address}
+                      disabled={locked}
+                      onClick={() => openAsset("markets", asset.address)}
+                    >
+                      <span>
+                        <strong>{asset.symbol}</strong>
+                        <small>{asset.name}</small>
+                      </span>
+                      <span className="aw-search-chain">
+                        {asset.address.slice(0, 6)}…{asset.address.slice(-4)}{" "}
+                        <ArrowUpRight size={14} />
+                      </span>
+                    </button>
+                  ))}
+                  {tokens && !tokens.items.length && (
+                    <p>No matching assets returned on Arc Mainnet.</p>
+                  )}
+                  {tokens?.sources.some((source) => source.status !== "ok") && (
+                    <p>Some sources are unavailable. Results may be incomplete.</p>
+                  )}
+                  <button disabled={locked} onClick={() => browse("markets")}>
+                    Open full token search <ArrowUpRight size={14} />
+                  </button>
+                </>
+              )}
+              {term && searchKind !== "Coins & tokens" && !stocks.length && (
+                <p>No issuer-listed stocks match this search.</p>
+              )}
+              {!term && (
                 <p>
-                  No results. Open <button onClick={() => navigate("markets")}>Arc research</button>{" "}
-                  to search contracts.
+                  Search {searchStocks("").length} stocks & ETFs, or discover coins by name, symbol
+                  or contract.
                 </p>
+              )}
+              {locked && (
+                <p role="status">Finish the current wallet request before changing assets.</p>
               )}
             </div>
           )}

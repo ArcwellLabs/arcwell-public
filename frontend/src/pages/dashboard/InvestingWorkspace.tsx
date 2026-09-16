@@ -1,9 +1,4 @@
-import {
-  PrecisionPortfolio,
-  PrecisionTrading,
-  PrecisionActivity,
-  TradeTabs,
-} from "./PrecisionInvesting";
+import { PrecisionPortfolio, PrecisionActivity, TradeTabs } from "./PrecisionInvesting";
 import { useMemo, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import {
@@ -52,6 +47,8 @@ import AssetSearchField from "@/components/AssetSearchField";
 
 type Props = {
   view: string;
+  initialAddress?: string;
+  initialQuery?: string;
   onNavigate: (view: string) => void;
   symbol: string;
   setSymbol: (symbol: string) => void;
@@ -92,11 +89,23 @@ export default function InvestingWorkspace(props: Props) {
       {view === "portfolio" ? (
         <PrecisionPortfolio {...props} />
       ) : view === "trading" ? (
-        <PrecisionTrading {...props} />
+        <TokenizedStocks
+          key={`${props.initialAddress || ""}:${props.initialQuery || ""}`}
+          initialAddress={props.initialAddress}
+          initialQuery={props.initialQuery}
+        />
       ) : view === "markets" ? (
-        <AssetResearch />
+        <AssetResearch
+          key={`${props.initialAddress || ""}:${props.initialQuery || ""}`}
+          initialAddress={props.initialAddress}
+          initialQuery={props.initialQuery}
+        />
       ) : view === "stocks" ? (
-        <TokenizedStocks />
+        <TokenizedStocks
+          key={`${props.initialAddress || ""}:${props.initialQuery || ""}`}
+          initialAddress={props.initialAddress}
+          initialQuery={props.initialQuery}
+        />
       ) : view === "risk" ? (
         <Risk book={props.book} />
       ) : view === "quant" ? (

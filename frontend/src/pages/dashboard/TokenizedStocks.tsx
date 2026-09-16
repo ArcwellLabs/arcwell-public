@@ -65,12 +65,22 @@ function StockLogo({ asset }: { asset: StockAsset }) {
   );
 }
 
-export default function TokenizedStocks() {
+export default function TokenizedStocks({
+  initialAddress,
+  initialQuery,
+}: {
+  initialAddress?: string;
+  initialQuery?: string;
+}) {
   const walletSession = useWalletSession();
   const { setTransactionLock } = walletSession;
   const [ready, setReady] = useState<boolean | null>(null);
-  const [symbol, setSymbol] = useState<string>("AAPLon");
-  const [query, setQuery] = useState("");
+  const [symbol, setSymbol] = useState<string>(
+    () =>
+      STOCK_ASSETS.find((asset) => asset.address.toLowerCase() === initialAddress?.toLowerCase())
+        ?.symbol || "AAPLon",
+  );
+  const [query, setQuery] = useState(initialQuery || "");
   const [visibleCount, setVisibleCount] = useState(24);
   const filteredAssets = useMemo(() => {
     const term = query.trim().toLowerCase();

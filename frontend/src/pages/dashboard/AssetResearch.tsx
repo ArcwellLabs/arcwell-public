@@ -84,9 +84,15 @@ function Sources({ sources }: { sources: SourceStatus[] }) {
     </ul>
   );
 }
-export default function AssetResearch() {
+export default function AssetResearch({
+  initialAddress,
+  initialQuery,
+}: {
+  initialAddress?: string;
+  initialQuery?: string;
+}) {
   const [network, setNetwork] = useState<AssetNetwork>("mainnet");
-  const [query, setQuery] = useState("EURC");
+  const [query, setQuery] = useState(initialAddress || initialQuery || "EURC");
   const [results, setResults] = useState<AssetSearch | null>(null);
   const [detail, setDetail] = useState<AssetDetail | null>(null);
   const [selected, setSelected] = useState("");
